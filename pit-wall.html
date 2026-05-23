@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PitWall">
+<meta name="theme-color" content="#060608">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23060608'/><text x='50%25' y='50%25' text-anchor='middle' dominant-baseline='central' font-family='Arial Black,sans-serif' font-weight='900' font-size='60' fill='%23fff' letter-spacing='-2'>PIT<tspan fill='%23E8002D'>•</tspan></text></svg>">
+<title>PIT WALL</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060608;--surf:#0e0e12;--surf2:#141418;--surf3:#1a1a20;
+  --border:#1e1e26;--border2:#282830;--border3:#323240;
+  --red:#E8002D;--red2:#ff1744;
+  --cyan:#00d4ff;--green:#00e676;--amber:#ffab00;--purple:#d500f9;--pink:#ff4081;
+  --white:#f2f2f2;--muted:#4a4a58;--muted2:#6a6a7a;--text:#b0b0c0;
+  --toolbar-h:42px;--statusbar-h:28px;
+  --font-ui:'Barlow Condensed',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--white);font-family:var(--font-ui);display:flex;flex-direction:column;user-select:none;-webkit-tap-highlight-color:transparent;}
+
+#toolbar{height:var(--toolbar-h);background:var(--surf);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 10px;gap:6px;flex-shrink:0;z-index:100;}
+#logo{display:flex;align-items:center;gap:0;margin-right:6px;flex-shrink:0;font-size:15px;font-weight:900;letter-spacing:.08em;}
+#logo .a{color:var(--white);}
+#logo .b{color:var(--red);margin-left:1px;}
+#logo .badge{margin-left:7px;padding:1px 5px;background:var(--red);border-radius:2px;font-size:8px;font-weight:700;letter-spacing:.14em;color:#fff;}
+.tsep{width:1px;height:20px;background:var(--border3);margin:0 2px;flex-shrink:0;}
+.tb-btn{height:26px;padding:0 9px;background:transparent;border:1px solid var(--border3);border-radius:3px;color:var(--text);font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.1em;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;flex-shrink:0;text-transform:uppercase;}
+.tb-btn:hover{background:var(--border3);color:var(--white);}
+.tb-btn.red{background:var(--red);border-color:var(--red);color:#fff;}
+.tb-btn.red:hover{background:var(--red2);}
+.tb-btn svg{width:11px;height:11px;flex-shrink:0;}
+.preset-row{display:flex;gap:3px;}
+.pbt{width:26px;height:26px;background:transparent;border:1px solid var(--border3);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:4px;transition:all .15s;flex-shrink:0;}
+.pbt:hover{border-color:var(--red);}
+.pbt:hover svg rect{fill:var(--red);}
+.pbt svg{width:14px;height:14px;}
+.pbt svg rect{fill:var(--muted2);}
+#session-info{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+#live-pill{display:flex;align-items:center;gap:5px;padding:3px 8px;background:var(--surf2);border:1px solid var(--border3);border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted2);}
+#live-pill.live{border-color:rgba(232,0,45,.4);color:var(--red);}
+#live-pill.ended{border-color:var(--border3);color:var(--muted2);}
+#live-pill.upcoming{border-color:rgba(0,212,255,.35);color:var(--cyan);cursor:pointer;}
+#live-pill.upcoming:hover{background:rgba(0,212,255,.08);}
+
+/* WEEKEND OVERVIEW MODAL */
+#weekend-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn .2s ease;}
+#weekend-modal.vis{display:flex;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.wm-box{background:var(--surf);border:1px solid var(--border3);border-radius:10px;width:min(820px,96vw);max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;animation:scaleIn .25s cubic-bezier(.2,.9,.3,1.1);}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
+.wm-hero{position:relative;padding:24px 28px 20px;background:linear-gradient(135deg,#0a1420 0%,#000810 100%);border-bottom:1px solid var(--border2);border-radius:10px 10px 0 0;overflow:hidden;}
+.wm-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,rgba(232,0,45,.12),transparent 55%);pointer-events:none;}
+.wm-hero-tag{font-size:9px;font-weight:700;letter-spacing:.2em;color:var(--red);margin-bottom:6px;text-transform:uppercase;position:relative;}
+.wm-hero-title{font-size:32px;font-weight:900;letter-spacing:.04em;line-height:1.05;color:#fff;text-transform:uppercase;position:relative;}
+.wm-hero-sub{font-size:13px;font-weight:600;letter-spacing:.05em;color:var(--text);margin-top:6px;position:relative;}
+.wm-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:var(--surf2);border:1px solid var(--border3);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .12s;}
+.wm-close:hover{background:var(--red);color:#fff;border-color:var(--red);}
+.wm-close svg{width:11px;height:11px;}
+.wm-countdown{position:absolute;top:24px;right:60px;text-align:right;}
+.wm-countdown-lbl{font-size:9px;font-weight:700;letter-spacing:.18em;color:var(--muted2);text-transform:uppercase;margin-bottom:3px;}
+.wm-countdown-val{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--cyan);letter-spacing:.04em;}
+.wm-body{padding:20px 28px 24px;display:flex;flex-direction:column;gap:18px;}
+.wm-section-title{font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--muted2);text-transform:uppercase;margin-bottom:8px;}
+.wm-schedule{display:flex;flex-direction:column;gap:5px;}
+.wm-sess{display:grid;grid-template-columns:14px 80px 1fr 110px 80px;gap:10px;align-items:center;padding:10px 12px;background:var(--surf2);border:1px solid var(--border2);border-radius:5px;transition:background .1s,border-color .1s;}
+.wm-sess.next{border-color:rgba(0,212,255,.35);background:rgba(0,212,255,.04);}
+.wm-sess.live{border-color:rgba(232,0,45,.45);background:rgba(232,0,45,.06);}
+.wm-sess.done{opacity:.5;}
+.wm-sess-dot{width:8px;height:8px;border-radius:50%;}
+.wm-sess.next .wm-sess-dot{background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.wm-sess.live .wm-sess-dot{background:var(--red);box-shadow:0 0 8px var(--red);animation:pulse 1.4s infinite;}
+.wm-sess.done .wm-sess-dot{background:var(--muted);}
+.wm-sess.upcoming .wm-sess-dot{background:var(--border3);}
+.wm-sess-name{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--text);text-transform:uppercase;}
+.wm-sess.next .wm-sess-name{color:var(--cyan);}
+.wm-sess.live .wm-sess-name{color:var(--red);}
+.wm-sess-day{font-size:12px;color:var(--muted2);font-weight:500;}
+.wm-sess-time{font-family:var(--font-mono);font-size:13px;color:var(--white);text-align:right;font-weight:600;}
+.wm-sess-tz{font-family:var(--font-mono);font-size:9px;color:var(--muted2);text-align:right;}
+.wm-sess-status{font-size:10px;font-weight:700;letter-spacing:.1em;text-align:right;text-transform:uppercase;}
+.wm-sess.done .wm-sess-status{color:var(--muted2);}
+.wm-sess.next .wm-sess-status{color:var(--cyan);}
+.wm-sess.live .wm-sess-status{color:var(--red);}
+.wm-sess.upcoming .wm-sess-status{color:var(--muted2);}
+.wm-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;}
+.wm-info-card{padding:11px 13px;background:var(--surf2);border:1px solid var(--border2);border-radius:5px;}
+.wm-info-lbl{font-size:8px;font-weight:700;letter-spacing:.18em;color:var(--muted2);text-transform:uppercase;margin-bottom:4px;}
+.wm-info-val{font-family:var(--font-mono);font-size:15px;font-weight:600;color:#fff;}
+.wm-info-val.small{font-size:12px;}
+.wm-circuit-canvas{width:100%;height:200px;background:var(--surf2);border:1px solid var(--border2);border-radius:6px;}
+.wm-loading{display:flex;align-items:center;justify-content:center;padding:30px;color:var(--muted2);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+
+/* LIVE KEY MODAL */
+#key-modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn .2s ease;}
+#key-modal.vis{display:flex;}
+.key-box{position:relative;background:var(--surf);border:1px solid var(--border3);border-radius:10px;width:min(480px,94vw);max-height:90vh;overflow-y:auto;padding:24px 26px;display:flex;flex-direction:column;animation:scaleIn .25s cubic-bezier(.2,.9,.3,1.1);}
+.key-title{font-size:20px;font-weight:900;letter-spacing:.04em;color:#fff;text-transform:uppercase;margin-bottom:8px;}
+.key-desc{font-size:12px;line-height:1.5;color:var(--text);margin-bottom:14px;}
+.key-status{font-size:11px;font-weight:700;letter-spacing:.06em;padding:8px 11px;border-radius:5px;margin-bottom:12px;display:none;}
+.key-status.ok{display:block;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);color:var(--green);}
+.key-status.err{display:block;background:rgba(232,0,45,.1);border:1px solid rgba(232,0,45,.3);color:var(--red2);}
+.key-status.info{display:block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);color:var(--cyan);}
+.key-label{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--muted2);text-transform:uppercase;margin-bottom:5px;}
+.key-input{width:100%;height:72px;background:var(--surf2);border:1px solid var(--border3);border-radius:5px;color:var(--white);font-family:var(--font-mono);font-size:16px;padding:10px 12px;resize:none;outline:none;line-height:1.4;-webkit-appearance:none;}
+.key-input:focus{border-color:var(--cyan);}
+.key-input-line{width:100%;background:var(--surf2);border:1px solid var(--border3);border-radius:5px;color:var(--white);font-family:var(--font-ui);font-size:16px;padding:11px 12px;outline:none;margin-bottom:8px;-webkit-appearance:none;}
+.key-input-line:focus{border-color:var(--cyan);}
+.key-actions{display:flex;gap:8px;margin-top:12px;}
+.key-btn{flex:1;height:34px;border-radius:5px;font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border3);transition:all .12s;}
+.key-btn.full{width:100%;flex:none;margin-top:8px;}
+.key-btn.primary{background:var(--red);border-color:var(--red);color:#fff;}
+.key-btn.primary:hover{background:var(--red2);}
+.key-btn.ghost{background:transparent;color:var(--text);}
+.key-btn.ghost:hover{background:var(--surf3);color:#fff;}
+.key-help{margin-top:18px;padding-top:16px;border-top:1px solid var(--border2);}
+.key-help-title{font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--muted2);text-transform:uppercase;margin-bottom:8px;}
+.key-steps{font-size:11px;line-height:1.7;color:var(--text);padding-left:18px;margin-bottom:10px;}
+.key-link{color:var(--cyan);}
+.key-note{font-size:10px;color:var(--muted2);line-height:1.4;margin-top:8px;font-style:italic;}
+#live-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
+#live-pill.live #live-dot{background:var(--red);box-shadow:0 0 5px var(--red);animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+#session-label{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text);}
+
+#workspace{flex:1;position:relative;overflow:hidden;background:var(--bg);}
+.ws-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:32px 32px;opacity:.4;pointer-events:none;}
+
+#statusbar{height:var(--statusbar-h);background:var(--surf);border-top:1px solid var(--border2);display:flex;align-items:center;padding:0;flex-shrink:0;overflow:hidden;font-size:10px;font-weight:600;letter-spacing:.1em;}
+.sb-tag{padding:0 8px;height:100%;display:flex;align-items:center;border-right:1px solid var(--border2);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);flex-shrink:0;}
+#rc-scroll{flex:1;overflow:hidden;position:relative;height:100%;display:flex;align-items:center;}
+#rc-inner{display:flex;gap:0;white-space:nowrap;animation:rcscroll 60s linear infinite;color:var(--text);will-change:transform;}
+#rc-inner span{padding:0 8px;}
+#rc-inner span.highlight{color:var(--amber);}
+#rc-inner span.warn{color:var(--red);}
+#rc-inner b{font-weight:700;margin-right:4px;color:var(--muted2);}
+@keyframes rcscroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.sb-right{display:flex;align-items:center;margin-left:auto;flex-shrink:0;}
+.sb-seg{padding:0 10px;height:100%;display:flex;align-items:center;gap:5px;border-left:1px solid var(--border2);font-size:10px;font-weight:600;}
+.sb-seg .lbl{color:var(--muted2);font-size:9px;letter-spacing:.12em;text-transform:uppercase;}
+.sb-seg .val{color:var(--white);font-family:var(--font-mono);font-size:10px;}
+.sb-seg .val.rain{color:var(--cyan);}
+.sb-seg .val.hot{color:var(--amber);}
+
+.panel{position:absolute;background:var(--surf);border:1px solid var(--border2);border-radius:5px;overflow:hidden;display:flex;flex-direction:column;min-width:180px;min-height:120px;transition:border-color .12s;box-shadow:0 4px 24px rgba(0,0,0,.5);}
+.panel:hover{border-color:var(--border3);}
+.panel.focused{border-color:var(--red);box-shadow:0 0 0 1px rgba(232,0,45,.2),0 6px 32px rgba(0,0,0,.6);}
+.panel.dragging{opacity:.88;box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 0 1px var(--red);z-index:200!important;}
+.ph{height:30px;background:var(--surf2);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 8px;gap:6px;cursor:grab;flex-shrink:0;}
+.ph:active{cursor:grabbing;}
+.ph-accent{width:2px;height:14px;border-radius:1px;flex-shrink:0;}
+.ph-title{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);}
+.ph-tag{font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:1px 5px;border-radius:2px;flex-shrink:0;}
+.pa{display:flex;gap:2px;}
+.pb{width:18px;height:18px;border-radius:2px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .1s;}
+.pb:hover{background:var(--border3);color:var(--white);}
+.pb.cl:hover{background:var(--red);color:#fff;}
+.pb svg{width:10px;height:10px;}
+.pbody{flex:1;overflow:hidden;position:relative;}
+.rh{position:absolute;right:0;bottom:0;width:14px;height:14px;cursor:nwse-resize;z-index:10;}
+.rh::after{content:'';position:absolute;right:3px;bottom:3px;width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);border-radius:1px;}
+.panel:hover .rh::after,.panel.focused .rh::after{border-color:var(--border3);}
+
+.ac-timing{background:var(--cyan);}.ac-tyres{background:var(--amber);}.ac-radio{background:var(--green);}.ac-track{background:var(--purple);}.ac-sectors{background:#ff8c00;}.ac-overtake{background:var(--cyan);}.ac-weather{background:#64b4ff;}.ac-gaps{background:var(--pink);}.ac-laps{background:var(--red);}.ac-positions{background:var(--green);}
+.tag-timing{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2);}
+.tag-tyres{background:rgba(255,171,0,.1);color:var(--amber);border:1px solid rgba(255,171,0,.2);}
+.tag-radio{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.2);}
+.tag-track{background:rgba(213,0,249,.1);color:var(--purple);border:1px solid rgba(213,0,249,.2);}
+.tag-sectors{background:rgba(255,140,0,.1);color:#ff8c00;border:1px solid rgba(255,140,0,.2);}
+.tag-overtake{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2);}
+.tag-weather{background:rgba(100,180,255,.1);color:#64b4ff;border:1px solid rgba(100,180,255,.2);}
+.tag-gaps{background:rgba(255,64,129,.1);color:var(--pink);border:1px solid rgba(255,64,129,.2);}
+.tag-laps{background:rgba(232,0,45,.15);color:var(--red);border:1px solid rgba(232,0,45,.25);}
+.tag-positions{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.2);}
+
+.dp{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;}
+.dp::-webkit-scrollbar{width:3px;}
+.dp::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px;}
+.dp-head{display:grid;padding:5px 8px;border-bottom:1px solid var(--border2);font-size:8px;font-weight:700;letter-spacing:.14em;color:var(--muted2);text-transform:uppercase;position:sticky;top:0;background:var(--surf);z-index:2;}
+.dp-row{display:grid;padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.025);align-items:center;transition:background .08s;}
+.dp-row:hover{background:rgba(255,255,255,.025);}
+.dp-row.lead{background:rgba(232,0,45,.04);}
+.pos{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--muted2);text-align:center;}
+.dp-row.lead .pos{color:var(--red);}
+.dtag{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:.05em;}
+.dname{font-size:10px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mv{font-family:var(--font-mono);font-size:10px;color:var(--text);text-align:right;}
+.mv.gap{color:var(--muted2);font-size:9px;}
+.td{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:9px;font-weight:900;margin:auto;}
+.tS{background:rgba(255,40,40,.3);color:#ff8080;border:1.5px solid rgba(255,40,40,.55);}
+.tM{background:rgba(255,180,0,.3);color:#ffd040;border:1.5px solid rgba(255,180,0,.55);}
+.tH{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.35);}
+.tI{background:rgba(0,200,255,.22);color:#33d4ff;border:1.5px solid rgba(0,200,255,.45);}
+.tW{background:rgba(60,120,255,.28);color:#80a8ff;border:1.5px solid rgba(60,120,255,.5);}
+
+.tp{width:100%;height:100%;overflow-y:auto;padding:6px;}
+.tp::-webkit-scrollbar{width:3px;}
+.tp::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px;}
+.tr{display:flex;align-items:center;gap:6px;padding:4px 5px;border-radius:3px;}
+.tr:hover{background:rgba(255,255,255,.025);}
+.tr-drv{font-family:var(--font-ui);font-size:11px;font-weight:700;letter-spacing:.05em;width:32px;flex-shrink:0;}
+.tr-badge{width:21px;height:21px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:10px;font-weight:900;flex-shrink:0;}
+.tr-bar-w{flex:1;height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.tr-bar{height:100%;border-radius:2px;transition:width 1s;}
+.tr-age{font-family:var(--font-mono);font-size:9px;color:var(--muted2);width:22px;text-align:right;flex-shrink:0;}
+
+.sec{font-family:var(--font-mono);font-size:10px;text-align:right;padding:1px 3px;border-radius:2px;}
+.sec-fast{background:rgba(213,0,249,.2);color:#e040fb;}
+.sec-pb{background:rgba(0,230,118,.14);color:var(--green);}
+.sec-ok{color:var(--text);}
+.sec-slow{color:var(--muted2);}
+
+.ovp{width:100%;height:100%;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:5px;}
+.ov-info{padding:7px 9px;background:var(--surf2);border-radius:4px;border:1px solid var(--border2);font-size:10px;color:var(--muted2);line-height:1.5;letter-spacing:.04em;}
+.ov-row{padding:5px 8px;border-radius:4px;background:var(--surf2);border:1px solid var(--border2);transition:background .1s;display:flex;align-items:center;gap:6px;}
+.ov-row:hover{background:var(--surf3);}
+.ov-drv{font-family:var(--font-ui);font-size:12px;font-weight:700;letter-spacing:.06em;flex-shrink:0;}
+
+.wp{width:100%;height:100%;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:6px;}
+.w-main{display:flex;align-items:center;gap:12px;padding:9px;background:var(--surf2);border-radius:4px;border:1px solid var(--border2);}
+.w-icon{font-size:24px;}
+.w-temp{font-size:28px;font-weight:900;line-height:1;}
+.w-sub{font-size:9px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase;margin-top:2px;}
+.w-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.w-stat{padding:6px 8px;background:var(--surf2);border-radius:4px;border:1px solid var(--border2);}
+.w-sl{font-size:8px;font-weight:700;letter-spacing:.15em;color:var(--muted2);text-transform:uppercase;margin-bottom:3px;}
+.w-sv{font-family:var(--font-mono);font-size:13px;color:var(--white);}
+.w-sv.rain{color:var(--cyan);}
+.w-sv.hot{color:var(--amber);}
+
+.gp{width:100%;height:100%;overflow-y:auto;padding:7px;}
+.gr{display:flex;align-items:center;gap:5px;margin-bottom:4px;}
+.g-pos{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--muted2);width:14px;text-align:right;flex-shrink:0;}
+.g-drv{font-family:var(--font-ui);font-size:11px;font-weight:700;width:30px;flex-shrink:0;}
+.g-bw{flex:1;height:12px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.g-b{height:100%;border-radius:3px;transition:width .8s ease;}
+.g-val{font-family:var(--font-mono);font-size:9px;color:var(--muted2);width:50px;text-align:right;flex-shrink:0;}
+
+.rp{width:100%;height:100%;overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:4px;}
+.rp::-webkit-scrollbar{width:3px;}
+.rp::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px;}
+.rm{display:flex;flex-direction:column;gap:2px;padding:6px 8px;background:var(--surf2);border-radius:4px;border:1px solid var(--border2);animation:sli .25s ease;}
+@keyframes sli{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
+.rm.new{border-color:rgba(0,230,118,.25);}
+.rm-meta{display:flex;justify-content:space-between;align-items:center;}
+.rm-drv{font-size:11px;font-weight:700;letter-spacing:.08em;}
+.rm-t{font-family:var(--font-mono);font-size:8px;color:var(--muted2);}
+.rm-player{display:flex;align-items:center;gap:7px;margin-top:3px;}
+.rm-play{width:22px;height:22px;border-radius:50%;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);color:var(--green);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;padding:0;}
+.rm-play:hover{background:rgba(0,230,118,.22);transform:scale(1.05);}
+.rm-play.playing{background:var(--green);color:#001a08;}
+.rm-play svg{width:9px;height:9px;}
+.rm-progress{flex:1;height:3px;background:var(--border2);border-radius:2px;overflow:hidden;cursor:pointer;}
+.rm-progress-fill{height:100%;background:var(--green);border-radius:2px;width:0%;transition:width .15s linear;}
+.rm-dur{font-family:var(--font-mono);font-size:8px;color:var(--muted2);min-width:30px;text-align:right;flex-shrink:0;letter-spacing:.04em;}
+
+.tmp{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+
+/* LAP TIMES */
+.lp{width:100%;height:100%;overflow-y:auto;}
+.lp-head{display:grid;grid-template-columns:20px 36px 1fr 80px 50px;padding:5px 8px;border-bottom:1px solid var(--border2);font-size:8px;font-weight:700;letter-spacing:.14em;color:var(--muted2);text-transform:uppercase;position:sticky;top:0;background:var(--surf);z-index:2;}
+.lp-row{display:grid;grid-template-columns:20px 36px 1fr 80px 50px;padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.025);align-items:center;transition:background .08s;}
+.lp-row:hover{background:rgba(255,255,255,.025);}
+.lp-row.fastest{background:rgba(213,0,249,.06);}
+.lp-time{font-family:var(--font-mono);font-size:11px;font-weight:600;text-align:right;}
+.lp-time.fastest{color:#e040fb;}
+.lp-time.pb{color:var(--green);}
+.lp-num{font-family:var(--font-mono);font-size:9px;color:var(--muted2);text-align:right;}
+
+/* POSITIONS CHANGES */
+.pcp{width:100%;height:100%;overflow-y:auto;padding:6px;}
+.pc-row{display:grid;grid-template-columns:24px 38px 1fr 30px 50px;gap:6px;padding:4px 5px;border-radius:3px;align-items:center;}
+.pc-row:hover{background:rgba(255,255,255,.025);}
+.pc-pos{font-family:var(--font-mono);font-size:11px;font-weight:700;text-align:center;color:var(--muted2);}
+.pc-drv{font-family:var(--font-ui);font-size:12px;font-weight:700;}
+.pc-name{font-size:10px;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pc-arrow{font-family:var(--font-ui);font-size:10px;font-weight:700;text-align:center;}
+.pc-up{color:var(--green);}
+.pc-down{color:var(--red);}
+.pc-flat{color:var(--muted2);}
+.pc-team{font-size:9px;color:var(--muted2);text-align:right;text-transform:uppercase;letter-spacing:.06em;}
+
+.ls{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:10px;padding:20px;text-align:center;}
+.lsp{width:20px;height:20px;border:1.5px solid var(--border3);border-top-color:var(--red);border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.lst{font-size:9px;letter-spacing:.14em;color:var(--muted2);text-transform:uppercase;line-height:1.5;}
+
+#add-menu{position:fixed;background:var(--surf);border:1px solid var(--border3);border-radius:6px;padding:5px;z-index:1000;display:none;flex-direction:column;gap:1px;box-shadow:0 16px 50px rgba(0,0,0,.85);min-width:200px;animation:mIn .1s ease;max-height:80vh;overflow-y:auto;}
+@keyframes mIn{from{opacity:0;transform:scale(.96) translateY(-3px);}to{opacity:1;transform:scale(1) translateY(0);}}
+#add-menu.vis{display:flex;}
+.m-lbl{font-size:8px;font-weight:700;letter-spacing:.18em;color:var(--muted2);text-transform:uppercase;padding:6px 8px 2px;}
+.m-item{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:4px;cursor:pointer;transition:background .1s;font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--text);}
+.m-item:hover{background:var(--surf3);color:var(--white);}
+.m-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.m-sep{height:1px;background:var(--border2);margin:3px 0;}
+
+.ews{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none;}
+.ews.hid{display:none;}
+.ew-logo{font-size:52px;font-weight:900;letter-spacing:.06em;color:rgba(255,255,255,.03);line-height:1;}
+.ew-logo b{color:rgba(232,0,45,.12);}
+.ew-sub{font-size:10px;letter-spacing:.22em;color:rgba(255,255,255,.06);text-transform:uppercase;}
+
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:2px;}
+
+/* ═══════════════ RESPONSIVE — TABLET ═══════════════ */
+@media (max-width:1100px){
+  #toolbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;}
+  .preset-row{display:none;} /* presets less useful on smaller screens */
+}
+
+/* ═══════════════ RESPONSIVE — MOBILE (stacked layout) ═══════════════ */
+@media (max-width:760px){
+  :root{--toolbar-h:auto;--statusbar-h:auto;}
+  body{overflow:auto;}
+  /* Toolbar becomes a compact sticky header */
+  #toolbar{flex-wrap:wrap;height:auto;padding:8px;gap:6px;position:sticky;top:0;z-index:500;}
+  #logo{font-size:16px;}
+  .tb-btn{height:32px;font-size:11px;}
+  #session-info{margin-left:0;width:100%;order:5;justify-content:space-between;}
+  #session-label{font-size:12px;}
+  .tsep{display:none;}
+
+  /* Workspace becomes a vertical scroll container, panels stack */
+  #workspace{position:static;flex:none;height:auto;min-height:0;overflow:visible;}
+  .ws-grid{display:none;}
+
+  /* Panels: no longer floating — full width, stacked, fixed height */
+  .panel{position:static!important;width:auto!important;margin:8px;height:auto!important;min-height:0;left:auto!important;top:auto!important;transform:none!important;}
+  .panel .pbody{height:62vh;max-height:560px;}
+  /* track map gets a squarer aspect on mobile */
+  .panel[data-type="track"] .pbody,.panel[data-type="weather"] .pbody{height:46vh;}
+  .rh{display:none;} /* no resize handle on mobile */
+  .ph{height:38px;cursor:default;} /* bigger tap target, no drag cursor */
+  .ph-title{font-size:12px;}
+  .pb{width:26px;height:26px;}
+  .pb svg{width:13px;height:13px;}
+
+  /* Status bar stacks below content */
+  #statusbar{flex-wrap:wrap;height:auto;min-height:28px;position:sticky;bottom:0;z-index:400;}
+  .sb-tag{padding:4px 8px;}
+  #rc-scroll{order:3;width:100%;border-top:1px solid var(--border2);height:26px;}
+  .sb-right{margin-left:0;width:100%;justify-content:space-around;order:2;}
+  .sb-seg{flex:1;justify-content:center;padding:5px 4px;}
+
+  /* Empty state */
+  .ew-logo{font-size:38px;}
+
+  /* Add menu full width bottom sheet style */
+  #add-menu{left:8px!important;right:8px!important;top:auto!important;bottom:8px;min-width:0;width:auto;max-height:60vh;}
+  .m-item{padding:11px 12px;font-size:14px;} /* bigger tap targets */
+
+  /* Modals fill screen better */
+  .wm-box,.key-box{width:96vw;max-height:92vh;border-radius:10px;}
+  .wm-hero-title{font-size:24px;}
+  .wm-countdown{position:static;text-align:left;margin-bottom:10px;}
+  .wm-sess{grid-template-columns:12px 1fr auto;gap:8px;}
+  .wm-sess-day,.wm-sess-tz{display:none;} /* trim on narrow screens */
+  .key-box{padding:20px 18px;}
+}
+
+/* Very small phones */
+@media (max-width:400px){
+  .tb-btn span,.tb-btn{font-size:10px;}
+  #logo{font-size:14px;}
+  .panel .pbody{height:58vh;}
+}
+
+/* Landscape phone — allow a bit more height per panel */
+@media (max-width:900px) and (orientation:landscape) and (max-height:500px){
+  .panel .pbody{height:78vh;}
+}
+</style>
+</head>
+<body>
+
+<div id="toolbar">
+  <div id="logo">
+    <span class="a">PIT</span><span class="b">•WALL</span>
+    <span class="badge">LIVE</span>
+  </div>
+  <div class="tsep"></div>
+  <button class="tb-btn red" id="btn-add">
+    <svg viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    ADD PANEL
+  </button>
+  <div class="tsep"></div>
+  <div class="preset-row">
+    <div class="pbt" title="Default Pit Wall" onclick="doPreset('default')"><svg viewBox="0 0 14 14"><rect x="1" y="1" width="6" height="8" rx="1"/><rect x="8" y="1" width="5" height="4" rx="1"/><rect x="8" y="6" width="5" height="3" rx="1"/><rect x="1" y="10" width="12" height="3" rx="1"/></svg></div>
+    <div class="pbt" title="Timing Focus" onclick="doPreset('timing')"><svg viewBox="0 0 14 14"><rect x="1" y="1" width="9" height="12" rx="1"/><rect x="11" y="1" width="2" height="5" rx="1"/><rect x="11" y="8" width="2" height="5" rx="1"/></svg></div>
+    <div class="pbt" title="Quad Grid" onclick="doPreset('quad')"><svg viewBox="0 0 14 14"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg></div>
+    <div class="pbt" title="Strategy View" onclick="doPreset('strat')"><svg viewBox="0 0 14 14"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="8" y="1" width="5" height="6" rx="1"/><rect x="1" y="8" width="6" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg></div>
+  </div>
+  <div class="tsep"></div>
+  <button class="tb-btn" onclick="resetLayout()" title="Reset to default">
+    <svg viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 014-4M2 6L1 5m1 1L3 5M10 6a4 4 0 01-4 4M10 6l1 1m-1-1l-1 1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    RESET
+  </button>
+  <button class="tb-btn" id="btn-key" onclick="openKeyModal()" title="Paste OpenF1 live access token">
+    <svg viewBox="0 0 12 12" fill="none"><circle cx="4" cy="6" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.2 6H11M9 6v2M11 6v1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    LIVE KEY
+  </button>
+  <div id="session-info">
+    <span id="session-label">Loading…</span>
+    <div id="live-pill"><div id="live-dot"></div><span id="live-txt">OFFLINE</span></div>
+  </div>
+</div>
+
+<div id="workspace">
+  <div class="ws-grid"></div>
+  <div class="ews hid" id="ews">
+    <div class="ew-logo">PIT<b>•</b>WALL</div>
+    <div class="ew-sub">Add panels to get started</div>
+  </div>
+</div>
+
+<div id="statusbar">
+  <div class="sb-tag">RACE CONTROL</div>
+  <div id="rc-scroll">
+    <div id="rc-inner"><span style="color:var(--muted2)">Connecting to OpenF1…</span></div>
+  </div>
+  <div class="sb-right" id="sb-right">
+    <div class="sb-seg"><span class="lbl">AIR</span><span class="val" id="sb-air">--°C</span></div>
+    <div class="sb-seg"><span class="lbl">TRACK</span><span class="val hot" id="sb-trk">--°C</span></div>
+    <div class="sb-seg"><span class="lbl">RAIN</span><span class="val" id="sb-rain">--</span></div>
+    <div class="sb-seg"><span class="lbl">LAP</span><span class="val" id="sb-lap">--</span></div>
+  </div>
+</div>
+
+<div id="add-menu">
+  <div class="m-lbl">Live Timing</div>
+  <div class="m-item" onclick="addP('timing')"><div class="m-dot" style="background:var(--cyan)"></div>Timing Tower</div>
+  <div class="m-item" onclick="addP('gaps')"><div class="m-dot" style="background:var(--pink)"></div>Gap Chart</div>
+  <div class="m-item" onclick="addP('sectors')"><div class="m-dot" style="background:#ff8c00"></div>Sector Times</div>
+  <div class="m-item" onclick="addP('laps')"><div class="m-dot" style="background:var(--red)"></div>Lap Times</div>
+  <div class="m-sep"></div>
+  <div class="m-lbl">Strategy</div>
+  <div class="m-item" onclick="addP('tyres')"><div class="m-dot" style="background:var(--amber)"></div>Tyre Tracker</div>
+  <div class="m-item" onclick="addP('overtake')"><div class="m-dot" style="background:var(--cyan)"></div>Overtakes Live</div>
+  <div class="m-sep"></div>
+  <div class="m-lbl">Session</div>
+  <div class="m-item" onclick="addP('weather')"><div class="m-dot" style="background:#64b4ff"></div>Weather</div>
+  <div class="m-item" onclick="addP('radio')"><div class="m-dot" style="background:var(--green)"></div>Team Radio</div>
+  <div class="m-item" onclick="addP('track')"><div class="m-dot" style="background:var(--purple)"></div>Track Map</div>
+</div>
+
+<!-- WEEKEND OVERVIEW MODAL -->
+<div id="weekend-modal">
+  <div class="wm-box" id="wm-box-content"></div>
+</div>
+
+<!-- LIVE KEY MODAL -->
+<div id="key-modal">
+  <div class="key-box">
+    <button class="wm-close" onclick="closeKeyModal()"><svg viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    <div class="key-title">OpenF1 Live Access</div>
+    <div class="key-desc">Free OpenF1 data is blocked during live sessions (30 min before to 30 min after). Paste a live access token below to unlock live timing. Without a token, PitWall works fully for finished sessions.</div>
+    <div class="key-status" id="key-status"></div>
+    <label class="key-label">Access Token</label>
+    <textarea class="key-input" id="key-input" placeholder="Paste your OpenF1 access token here…" spellcheck="false"></textarea>
+    <div class="key-actions">
+      <button class="key-btn ghost" onclick="clearKey()">Clear</button>
+      <button class="key-btn primary" onclick="saveKey()">Save Token</button>
+    </div>
+    <div class="key-help">
+      <div class="key-help-title">How to get a token</div>
+      <ol class="key-steps">
+        <li>Subscribe at <span class="key-link">openf1.org</span> (Sponsor button)</li>
+        <li>Get your username &amp; password</li>
+        <li>Tap <b>Fetch Token</b> below and enter them — PitWall gets a 1-hour token for you</li>
+      </ol>
+      <button class="key-btn ghost full" onclick="toggleFetchToken()">Fetch Token with Login</button>
+      <div id="fetch-token-area" style="display:none">
+        <input class="key-input-line" id="key-user" placeholder="Username / email" spellcheck="false" autocomplete="off">
+        <input class="key-input-line" id="key-pass" type="password" placeholder="Password" autocomplete="off">
+        <button class="key-btn primary full" onclick="fetchToken()">Get 1-Hour Token</button>
+        <div class="key-note">Your login is sent once to OpenF1 to get a token, then discarded — it's never saved in the app.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TC={'Red Bull Racing':'#3671C6','Ferrari':'#E8002D','Mercedes':'#27F4D2','McLaren':'#FF8000','Aston Martin':'#229971','Alpine':'#FF87BC','Williams':'#64C4FF','RB':'#6692FF','Haas F1 Team':'#B6BABD','Sauber':'#52E252','default':'#888'};
+
+let panels=[],pZ=10,nId=1;
+let f1={drivers:[],positions:[],intervals:{},stints:{},laps:{},allLaps:[],radio:[],weather:null,session:null,raceControl:[],overtakes:[],location:{},trackOutline:[],circuitKey:null,trackPoints:[],trackBounds:null,trackTransform:null};
+
+const gD=n=>f1.drivers.find(d=>d.driver_number==n)||null;
+const gS=n=>f1.stints[n]||null;
+const gL=n=>f1.laps[n]||null;
+const gI=n=>f1.intervals[n]||null;
+const tc=t=>TC[t]||TC.default;
+const fS=ms=>{if(!ms)return'--.---';const s=Math.floor(ms/1000),ms2=Math.round(ms%1000);return`${s}.${String(ms2).padStart(3,'0')}`;};
+const fL=ms=>{if(!ms)return'--:--.---';const m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000),ms2=Math.round(ms%1000);return`${m}:${String(s).padStart(2,'0')}.${String(ms2).padStart(3,'0')}`;};
+const fmtCountdown=ms=>{
+  if(ms<0)return 'STARTING';
+  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000);
+  if(d>0)return `IN ${d}D ${h}H`;
+  if(h>0)return `IN ${h}H ${m}M`;
+  return `IN ${m}M`;
+};
+const lsH=msg=>`<div class="ls"><div class="lsp"></div><div class="lst">${msg}</div></div>`;
+
+let liveToken=null;       // OpenF1 access token (in-memory + localStorage)
+let lastWas401=false;     // track whether the last failure was a live-paywall block
+try{liveToken=localStorage.getItem('pitwall_token')||null;}catch(e){}
+
+async function fetchF1(ep,retries=1){
+  for(let attempt=0;attempt<=retries;attempt++){
+    try{
+      const headers={};
+      if(liveToken)headers['Authorization']='Bearer '+liveToken;
+      const r=await fetch('https://api.openf1.org/v1/'+ep,{headers});
+      if(r.ok){lastWas401=false;return await r.json();}
+      if(r.status===401){lastWas401=true;return null;}
+      if(r.status===429&&attempt<retries){
+        await new Promise(res=>setTimeout(res,1500));continue;
+      }
+      return null;
+    }catch(e){
+      if(attempt<retries){await new Promise(res=>setTimeout(res,800));continue;}
+      return null;
+    }
+  }
+  return null;
+}
+
+// ── REAL CIRCUIT GEOJSON ─────────────────────────────────────────────────────
+// Maps OpenF1 circuit_short_name → bacinger/f1-circuits filename
+// Source: https://github.com/bacinger/f1-circuits (real GPS coordinates)
+const CIRCUIT_FILES={
+  'Sakhir':'bh-2002','Jeddah':'sa-2021','Melbourne':'au-1953','Baku':'az-2016',
+  'Miami':'us-2022','Imola':'it-1953','Monaco':'mc-1929','Catalunya':'es-1991',
+  'Montréal':'ca-1978','Spielberg':'at-1969','Silverstone':'gb-1948',
+  'Hungaroring':'hu-1986','Spa-Francorchamps':'be-1925','Zandvoort':'nl-1948',
+  'Monza':'it-1922','Singapore':'sg-2008','Suzuka':'jp-1962','Lusail':'qa-2004',
+  'Austin':'us-2012','Mexico City':'mx-1962','Interlagos':'br-1940',
+  'Las Vegas':'us-2023','Yas Marina':'ae-2009','Shanghai':'cn-2004'
+};
+
+const circuitCache={};
+
+async function fetchCircuitGeoJSON(name){
+  if(!name)return null;
+  // Try direct match first
+  let key=null;
+  for(const k of Object.keys(CIRCUIT_FILES)){
+    if(name.toLowerCase().includes(k.toLowerCase())||k.toLowerCase().includes(name.toLowerCase())){
+      key=CIRCUIT_FILES[k];break;
+    }
+  }
+  if(!key)return null;
+  if(circuitCache[key])return circuitCache[key];
+  try{
+    const r=await fetch(`https://raw.githubusercontent.com/bacinger/f1-circuits/master/circuits/${key}.geojson`);
+    if(!r.ok)return null;
+    const j=await r.json();
+    if(j&&j.geometry&&j.geometry.coordinates){
+      circuitCache[key]=j.geometry.coordinates;
+      return j.geometry.coordinates;
+    }
+  }catch(e){}
+  return null;
+}
+
+async function loadData(){
+  // Get the latest known session
+  let sess=await fetchF1('sessions?session_key=latest');
+  if(!sess||!sess.length){
+    if(lastWas401){
+      // Live session paywall — free data is blocked right now
+      document.getElementById('session-label').textContent='LIVE SESSION — DATA LOCKED';
+      document.getElementById('live-txt').textContent='LOCKED';
+      const inner=document.getElementById('rc-inner');
+      if(inner)inner.innerHTML=`<span style="color:var(--amber)">A live session is on. OpenF1 blocks free data until ~30 min after it ends. Add a LIVE KEY (top bar) to unlock now, or check back after the session.</span>`;
+    } else {
+      document.getElementById('session-label').textContent='RECONNECTING…';
+      document.getElementById('live-txt').textContent='RETRY';
+    }
+    return;
+  }
+  let session=sess[0];
+  const now=Date.now();
+  const latestEnd=session.date_end?new Date(session.date_end).getTime():0;
+
+  // Only look for a future session if the latest one ENDED over 2 hours ago
+  // (avoids skipping a session that's currently live or about to start)
+  if(latestEnd&&latestEnd<now-7200000){
+    const year=new Date().getFullYear();
+    const isoNow=encodeURIComponent(new Date().toISOString());
+    const upcoming=await fetchF1(`sessions?year=${year}&date_start%3E${isoNow}`);
+    if(upcoming&&upcoming.length){
+      const future=upcoming.filter(s=>new Date(s.date_start).getTime()>now);
+      if(future.length){
+        future.sort((a,b)=>new Date(a.date_start)-new Date(b.date_start));
+        session=future[0];
+      }
+    }
+  }
+
+  f1.session=session;
+  const sk=f1.session.session_key;
+  const circuit=f1.session.circuit_short_name||'';
+  const sname=f1.session.session_name||'';
+  document.getElementById('session-label').textContent=((circuit?circuit+' · ':'')+sname).toUpperCase();
+
+  const endTime=f1.session.date_end?new Date(f1.session.date_end).getTime():0;
+  const startTime=f1.session.date_start?new Date(f1.session.date_start).getTime():0;
+  const isLive=endTime>now&&startTime<now+60000;
+  const isUpcoming=startTime>now;
+  const pill=document.getElementById('live-pill');
+  const txt=document.getElementById('live-txt');
+  pill.classList.remove('live','ended','upcoming');
+  if(isLive){pill.classList.add('live');txt.textContent='LIVE';}
+  else if(isUpcoming){pill.classList.add('upcoming');txt.textContent=fmtCountdown(startTime-now);}
+  else if(endTime&&endTime<now){pill.classList.add('ended');txt.textContent='ENDED';}
+  else txt.textContent='—';
+
+  // For upcoming sessions, no live data exists yet - just show the session info and circuit
+  if(isUpcoming){
+    const circuitName=f1.session.circuit_short_name||f1.session.circuit_name||'';
+    if(circuitName!==f1.circuitKey){
+      f1.circuitKey=circuitName;
+      resetTrackData();
+      fetchCircuitGeoJSON(circuitName).then(coords=>{
+        if(coords&&coords.length){
+          f1.trackOutline=coords;
+          panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));
+        }
+      });
+    }
+    // Clear stale data from previous session
+    f1.positions=[];f1.intervals={};f1.stints={};f1.laps={};f1.allLaps=[];f1.radio=[];f1.weather=null;f1.raceControl=[];f1.overtakes=[];
+    document.getElementById('sb-air').textContent='—';
+    document.getElementById('sb-trk').textContent='—';
+    document.getElementById('sb-rain').textContent='—';
+    document.getElementById('sb-lap').textContent='—';
+    document.getElementById('rc-inner').innerHTML=`<span style="color:var(--muted2)">Session starts ${new Date(startTime).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`;
+    renderAll();
+    return;
+  }
+
+  // Smart date windowing for finished or live sessions
+  let dateFilter='';
+  if(!isLive&&endTime&&startTime){
+    dateFilter='&date>='+f1.session.date_start+'&date<='+f1.session.date_end;
+  } else {
+    dateFilter='&date>='+new Date(Date.now()-30*60*1000).toISOString();
+  }
+
+  const [drv,pos,intv,sti,lps,rad,wth,rc,ovt]=await Promise.all([
+    fetchF1('drivers?session_key='+sk),
+    fetchF1('position?session_key='+sk+dateFilter),
+    fetchF1('intervals?session_key='+sk+dateFilter),
+    fetchF1('stints?session_key='+sk),
+    fetchF1('laps?session_key='+sk),
+    fetchF1('team_radio?session_key='+sk),
+    fetchF1('weather?session_key='+sk),
+    fetchF1('race_control?session_key='+sk),
+    fetchF1('overtakes?session_key='+sk)
+  ]);
+  if(drv)f1.drivers=drv;
+  if(pos){const m={};pos.forEach(p=>{if(!m[p.driver_number]||p.date>m[p.driver_number].date)m[p.driver_number]=p;});f1.positions=Object.values(m).sort((a,b)=>a.position-b.position);}
+  if(intv){const m={};intv.forEach(i=>{if(!m[i.driver_number]||i.date>m[i.driver_number].date)m[i.driver_number]=i;});f1.intervals=m;}
+  if(sti){const m={};sti.forEach(s=>{if(!m[s.driver_number]||s.stint_number>m[s.driver_number].stint_number)m[s.driver_number]=s;});f1.stints=m;}
+  if(lps){
+    f1.allLaps=lps;
+    const m={};lps.forEach(x=>{if(!m[x.driver_number]||x.lap_number>m[x.driver_number].lap_number)m[x.driver_number]=x;});f1.laps=m;
+  }
+  if(rad&&rad.length)f1.radio=rad.slice(-30).reverse();
+  if(wth&&wth.length){f1.weather=wth[wth.length-1];updateStatusBar();}
+  if(rc&&rc.length){f1.raceControl=rc.slice(-25).reverse();updateRCBar();}
+  if(ovt&&ovt.length)f1.overtakes=ovt.slice(-30).reverse();
+  // Detect circuit change — reset track data
+  const circuitName=f1.session.circuit_short_name||f1.session.circuit_name||'';
+  if(circuitName!==f1.circuitKey){
+    f1.circuitKey=circuitName;
+    resetTrackData();
+    // Bootstrap track shape: fetch GeoJSON outline (instant) AND seed with bulk location history
+    fetchCircuitGeoJSON(circuitName).then(coords=>{
+      if(coords&&coords.length){
+        f1.trackOutline=coords;
+        panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));
+      }
+    });
+    bootstrapTrackPoints(); // populate trackPoints from session history
+  }
+  renderAll();
+}
+
+// On session start, do one bulk fetch of recent location data to seed the track shape
+async function bootstrapTrackPoints(){
+  if(!f1.session)return;
+  const sk=f1.session.session_key;
+  // Pull last 60 seconds worth of location data — usually enough to see most of the track
+  const since=new Date(Date.now()-60000).toISOString();
+  const loc=await fetchF1('location?session_key='+sk+'&date>='+since);
+  if(!loc||!loc.length)return;
+  if(!f1._trackGrid)f1._trackGrid=new Set();
+  const grid=f1._trackGrid;
+  loc.forEach(l=>{
+    if(typeof l.x!=='number'||typeof l.y!=='number')return;
+    const key=Math.round(l.x/5)+','+Math.round(l.y/5);
+    if(!grid.has(key)){
+      grid.add(key);
+      f1.trackPoints.push([l.x,l.y]);
+    }
+  });
+  if(f1.trackPoints.length>50){
+    computeTrackTransform();
+    panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));
+  }
+}
+
+// Load location data on a faster, lighter loop
+let locationLoadInProgress=false;
+async function loadLocation(){
+  if(locationLoadInProgress||!f1.session)return;
+  locationLoadInProgress=true;
+  try{
+    const sk=f1.session.session_key;
+    const since=new Date(Date.now()-5000).toISOString();
+    const loc=await fetchF1('location?session_key='+sk+'&date>='+since);
+    if(loc&&loc.length){
+      // Keep latest position per driver
+      const m={...f1.location};
+      loc.forEach(l=>{
+        if(!m[l.driver_number]||l.date>m[l.driver_number].date){
+          m[l.driver_number]=l;
+        }
+      });
+      f1.location=m;
+      // Accumulate ALL location samples for track shape (deduped to grid)
+      // Sample every ~5m to keep memory bounded
+      if(!f1._trackGrid)f1._trackGrid=new Set();
+      const grid=f1._trackGrid;
+      const points=f1.trackPoints;
+      loc.forEach(l=>{
+        if(typeof l.x!=='number'||typeof l.y!=='number')return;
+        const key=Math.round(l.x/5)+','+Math.round(l.y/5);
+        if(!grid.has(key)){
+          grid.add(key);
+          points.push([l.x,l.y]);
+        }
+      });
+      // Cap to 20000 points
+      if(points.length>20000)f1.trackPoints=points.slice(-20000);
+      // Recompute bounds + auto-rotation when we have enough points
+      if(f1.trackPoints.length>50)computeTrackTransform();
+      panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));
+    }
+  }catch(e){}
+  locationLoadInProgress=false;
+}
+
+// Compute optimal transform: bounds + rotation to make track widest horizontally
+function computeTrackTransform(){
+  const pts=f1.trackPoints;
+  if(pts.length<10){f1.trackTransform=null;return;}
+  // Find principal axis using PCA-lite: compute centroid + covariance, find dominant angle
+  let cx=0,cy=0;
+  pts.forEach(([x,y])=>{cx+=x;cy+=y;});
+  cx/=pts.length;cy/=pts.length;
+  let sxx=0,sxy=0,syy=0;
+  pts.forEach(([x,y])=>{const dx=x-cx,dy=y-cy;sxx+=dx*dx;sxy+=dx*dy;syy+=dy*dy;});
+  // Angle of dominant eigenvector
+  const angle=0.5*Math.atan2(2*sxy,sxx-syy);
+  // Apply rotation to find new bounds
+  const cos=Math.cos(-angle),sin=Math.sin(-angle);
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  pts.forEach(([x,y])=>{
+    const dx=x-cx,dy=y-cy;
+    const rx=dx*cos-dy*sin,ry=dx*sin+dy*cos;
+    if(rx<minX)minX=rx;if(rx>maxX)maxX=rx;
+    if(ry<minY)minY=ry;if(ry>maxY)maxY=ry;
+  });
+  // If rotated bounds are taller than wide, rotate another 90°
+  let finalAngle=angle;
+  if((maxX-minX)<(maxY-minY)){
+    finalAngle=angle+Math.PI/2;
+    const cos2=Math.cos(-finalAngle),sin2=Math.sin(-finalAngle);
+    minX=Infinity;maxX=-Infinity;minY=Infinity;maxY=-Infinity;
+    pts.forEach(([x,y])=>{
+      const dx=x-cx,dy=y-cy;
+      const rx=dx*cos2-dy*sin2,ry=dx*sin2+dy*cos2;
+      if(rx<minX)minX=rx;if(rx>maxX)maxX=rx;
+      if(ry<minY)minY=ry;if(ry>maxY)maxY=ry;
+    });
+  }
+  f1.trackTransform={cx,cy,angle:finalAngle,minX,maxX,minY,maxY};
+}
+
+// Reset track points when session changes
+let _orderCache={count:0,result:null};
+function resetTrackData(){
+  f1.trackPoints=[];
+  f1._trackGrid=new Set();
+  f1.trackTransform=null;
+  f1.location={};
+  _orderCache={count:0,result:null};
+}
+
+function updateStatusBar(){
+  const w=f1.weather;if(!w)return;
+  document.getElementById('sb-air').textContent=Math.round(w.air_temperature||0)+'°C';
+  document.getElementById('sb-trk').textContent=Math.round(w.track_temperature||0)+'°C';
+  document.getElementById('sb-rain').textContent=w.rainfall>0?'RAIN':'DRY';
+  const l=f1.laps[f1.positions[0]?.driver_number];
+  if(l)document.getElementById('sb-lap').textContent=l.lap_number||'--';
+}
+
+function updateRCBar(){
+  const inner=document.getElementById('rc-inner');
+  if(!f1.raceControl.length){inner.innerHTML=`<span style="color:var(--muted2)">No race control messages yet</span>`;return;}
+  const fmtMsg=m=>{
+    const time=m.date?new Date(m.date).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'';
+    let cls='';
+    if(m.flag==='RED'||m.message?.includes('PENALTY')||m.message?.includes('INVESTIGAT'))cls='warn';
+    else if(m.flag==='YELLOW'||m.flag==='DOUBLE YELLOW'||m.message?.includes('SAFETY')||m.message?.includes('VSC'))cls='highlight';
+    return`<span class="${cls}"><b>[${time}]</b> ${m.message||''}</span>`;
+  };
+  const html=f1.raceControl.map(fmtMsg).join('<span style="color:var(--muted2);padding:0 12px">◆</span>');
+  inner.innerHTML=html+'<span style="color:var(--muted2);padding:0 12px">◆</span>'+html;
+}
+
+const PD={timing:{w:380,h:520,t:'TIMING TOWER'},tyres:{w:260,h:480,t:'TYRE TRACKER'},radio:{w:280,h:380,t:'TEAM RADIO'},track:{w:300,h:300,t:'TRACK MAP'},sectors:{w:400,h:480,t:'SECTOR TIMES'},overtake:{w:300,h:380,t:'OVERTAKES LIVE'},weather:{w:260,h:340,t:'WEATHER'},gaps:{w:340,h:480,t:'GAP CHART'},laps:{w:340,h:420,t:'LAP TIMES'}};
+
+function addP(type,x,y,w,h){
+  const ws=document.getElementById('workspace'),ww=ws.clientWidth,wh=ws.clientHeight;
+  const d=PD[type],pw=w||Math.min(d.w,ww*.9),ph=h||Math.min(d.h,wh*.9);
+  const px=x!==undefined?x:Math.max(0,Math.random()*(ww-pw)),py=y!==undefined?y:Math.max(0,Math.random()*(wh-ph));
+  const id='p'+nId++;
+  const panel={id,type,x:px,y:py,w:pw,h:ph,title:d.t};
+  panels.push(panel);
+  const el=mkEl(panel);ws.appendChild(el);
+  hideEws();closeMenu();renderPanel(panel);
+  saveLayout();
+  return panel;
+}
+
+function isMobile(){return window.matchMedia('(max-width:760px)').matches;}
+
+function mkEl(panel){
+  const el=document.createElement('div');
+  el.className='panel';el.id=panel.id;
+  el.setAttribute('data-type',panel.type);
+  if(!isMobile()){
+    el.style.cssText=`left:${panel.x}px;top:${panel.y}px;width:${panel.w}px;height:${panel.h}px;z-index:${pZ++}`;
+  }
+  const acMap={timing:'ac-timing',tyres:'ac-tyres',radio:'ac-radio',track:'ac-track',sectors:'ac-sectors',overtake:'ac-overtake',weather:'ac-weather',gaps:'ac-gaps',laps:'ac-laps',positions:'ac-positions'};
+  const tgMap={timing:'tag-timing',tyres:'tag-tyres',radio:'tag-radio',track:'tag-track',sectors:'tag-sectors',overtake:'tag-overtake',weather:'tag-weather',gaps:'tag-gaps',laps:'tag-laps',positions:'tag-positions'};
+  el.innerHTML=`
+    <div class="ph">
+      <div class="ph-accent ${acMap[panel.type]||'ac-timing'}"></div>
+      <span class="ph-title">${panel.title}</span>
+      <span class="ph-tag ${tgMap[panel.type]||'tag-timing'}">${panel.type.toUpperCase()}</span>
+      <div class="pa">
+        <button class="pb" onclick="dupP('${panel.id}')" title="Duplicate"><svg viewBox="0 0 10 10" fill="none"><rect x=".5" y="2.5" width="7" height="7" rx="1" stroke="currentColor"/><path d="M2.5 2V1.5A1 1 0 013.5.5h5a1 1 0 011 1v5a1 1 0 01-1 1H9" stroke="currentColor"/></svg></button>
+        <button class="pb cl" onclick="removeP('${panel.id}')" title="Close"><svg viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+    <div class="pbody" id="b-${panel.id}"></div>
+    <div class="rh"></div>`;
+  if(!isMobile()){setupDrag(el,panel);setupResize(el,panel);}
+  el.addEventListener('mousedown',()=>{if(!isMobile())focusP(el);});
+  el.addEventListener('touchstart',()=>{if(!isMobile())focusP(el);},{passive:true});
+  return el;
+}
+
+function renderPanel(p){
+  const body=document.getElementById('b-'+p.id);if(!body)return;
+  ({timing:()=>rTiming(p,body),tyres:()=>rTyres(p,body),radio:()=>rRadio(p,body),track:()=>rTrack(p,body),sectors:()=>rSectors(p,body),overtake:()=>rOvertake(p,body),weather:()=>rWeather(p,body),gaps:()=>rGaps(p,body),laps:()=>rLaps(p,body)})[p.type]?.();
+}
+function renderAll(){panels.forEach(p=>renderPanel(p));}
+
+function removeP(id){
+  const el=document.getElementById(id);if(el)el.remove();
+  panels=panels.filter(p=>p.id!==id);if(!panels.length)showEws();
+  saveLayout();
+}
+function dupP(id){const p=panels.find(x=>x.id===id);if(p)addP(p.type,p.x+20,p.y+20,p.w,p.h);}
+function focusP(el){document.querySelectorAll('.panel.focused').forEach(p=>p.classList.remove('focused'));el.classList.add('focused');el.style.zIndex=pZ++;}
+function clearAll(){panels=[];document.getElementById('workspace').querySelectorAll('.panel').forEach(p=>p.remove());showEws();saveLayout();}
+
+function saveLayout(){try{localStorage.setItem('pitwall_layout',JSON.stringify(panels.map(p=>({type:p.type,x:p.x,y:p.y,w:p.w,h:p.h}))));}catch(e){}}
+function loadLayout(){
+  try{
+    const raw=localStorage.getItem('pitwall_layout');
+    if(!raw)return false;
+    const data=JSON.parse(raw);
+    if(!Array.isArray(data)||!data.length)return false;
+    data.forEach(p=>addP(p.type,p.x,p.y,p.w,p.h));
+    return true;
+  }catch(e){return false;}
+}
+function resetLayout(){clearAll();doPreset('default');}
+
+// ── PANELS ───────────────────────────────────────────────────────────────────
+function rTiming(p,body){
+  if(!f1.positions.length){body.innerHTML=lsH('Awaiting session data<br>Cars must be on track');return;}
+  const cols='20px 34px 1fr 84px 22px 28px';
+  const rows=f1.positions.map((pos,i)=>{
+    const d=gD(pos.driver_number),s=gS(pos.driver_number),iv=gI(pos.driver_number);
+    const n3=d?d.name_acronym:'#'+pos.driver_number,fn=d?d.first_name+' '+d.last_name:'';
+    const cmp=s&&s.compound?s.compound[0]:null;
+    const age=s&&typeof s.tyre_age_at_start==='number'?s.tyre_age_at_start:null;
+    const col=d?tc(d.team_name):TC.default;
+    let gapHtml;
+    if(i===0)gapHtml=`<span style="color:var(--red);font-size:9px;font-weight:700;letter-spacing:.08em">LEADER</span>`;
+    else if(iv && iv.interval !== null && iv.interval !== undefined){
+      if(typeof iv.interval==='number')gapHtml=`<span class="mv gap">+${iv.interval.toFixed(3)}</span>`;
+      else gapHtml=`<span class="mv gap">${iv.interval}</span>`;
+    } else gapHtml=`<span class="mv gap" style="color:var(--muted)">—</span>`;
+    const tyreHtml=cmp?`<div class="td t${cmp}">${cmp}</div>`:`<div class="td" style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border3)">—</div>`;
+    const ageHtml=age!==null?`${age}L`:'—';
+    return`<div class="dp-row${i===0?' lead':''}" style="grid-template-columns:${cols}"><div class="pos">${pos.position}</div><div class="dtag" style="color:${col}">${n3}</div><div class="dname">${fn}</div><div class="mv" style="text-align:right">${gapHtml}</div>${tyreHtml}<div class="mv" style="color:var(--muted2);font-size:9px;text-align:right">${ageHtml}</div></div>`;
+  }).join('');
+  body.innerHTML=`<div class="dp"><div class="dp-head" style="grid-template-columns:${cols}"><div>P</div><div>DRV</div><div>NAME</div><div style="text-align:right">INTERVAL</div><div style="text-align:center">TYR</div><div style="text-align:right">AGE</div></div>${rows}</div>`;
+}
+
+function rTyres(p,body){
+  if(!f1.positions.length){body.innerHTML=lsH('Awaiting stint data');return;}
+  const BC={S:'#ff4040',M:'#ffc800',H:'#bbb',I:'#00c8ff',W:'#6699ff'};
+  const rows=f1.positions.map(pos=>{
+    const d=gD(pos.driver_number),s=gS(pos.driver_number);
+    const n3=d?d.name_acronym:'#'+pos.driver_number;
+    const cmp=s&&s.compound?s.compound[0]:null;
+    const age=s&&typeof s.tyre_age_at_start==='number'?s.tyre_age_at_start:null;
+    const col=d?tc(d.team_name):TC.default;
+    if(cmp){
+      const pct=Math.min(100,((age||0)/45)*100),bc=BC[cmp]||'#888';
+      return`<div class="tr"><div class="tr-drv" style="color:${col}">${n3}</div><div class="tr-badge t${cmp}">${cmp}</div><div class="tr-bar-w"><div class="tr-bar" style="width:${pct}%;background:${bc};opacity:${.5+pct/200}"></div></div><div class="tr-age">${age||0}L</div></div>`;
+    }
+    return`<div class="tr" style="opacity:.5"><div class="tr-drv" style="color:${col}">${n3}</div><div class="tr-badge" style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border3)">—</div><div class="tr-bar-w"></div><div class="tr-age">—</div></div>`;
+  }).join('');
+  body.innerHTML=`<div class="tp">${rows}</div>`;
+}
+
+function rSectors(p,body){
+  if(!f1.positions.length){body.innerHTML=lsH('Awaiting lap data');return;}
+  let f1t=Infinity,f2t=Infinity,f3t=Infinity;
+  f1.positions.forEach(pos=>{const l=gL(pos.driver_number);if(l){if(l.duration_sector_1&&l.duration_sector_1<f1t)f1t=l.duration_sector_1;if(l.duration_sector_2&&l.duration_sector_2<f2t)f2t=l.duration_sector_2;if(l.duration_sector_3&&l.duration_sector_3<f3t)f3t=l.duration_sector_3;}});
+  const cols='20px 34px 1fr 56px 56px 56px';
+  const sc=(v,f)=>{if(!v)return`<div class="sec sec-slow">--.---</div>`;const cl=v===f?'sec-fast':v<f*1.005?'sec-pb':v<f*1.02?'sec-ok':'sec-slow';return`<div class="sec ${cl}">${fS(v*1000)}</div>`;};
+  const rows=f1.positions.map((pos)=>{
+    const d=gD(pos.driver_number),l=gL(pos.driver_number),n3=d?d.name_acronym:'#'+pos.driver_number,col=d?tc(d.team_name):TC.default;
+    return`<div class="dp-row" style="grid-template-columns:${cols}"><div class="pos">${pos.position}</div><div class="dtag" style="color:${col}">${n3}</div><div class="dname">${d?d.last_name:''}</div>${sc(l&&l.duration_sector_1,f1t)}${sc(l&&l.duration_sector_2,f2t)}${sc(l&&l.duration_sector_3,f3t)}</div>`;
+  }).join('');
+  body.innerHTML=`<div class="dp"><div class="dp-head" style="grid-template-columns:${cols}"><div>P</div><div>DRV</div><div>NAME</div><div style="text-align:right">S1</div><div style="text-align:right">S2</div><div style="text-align:right">S3</div></div>${rows}<div style="padding:5px 8px;font-size:8px;color:var(--muted2);letter-spacing:.1em;display:flex;gap:8px;border-top:1px solid var(--border2)"><span style="color:#e040fb">■</span>FASTEST&nbsp;<span style="color:var(--green)">■</span>PB&nbsp;<span style="color:var(--text)">■</span>NORMAL</div></div>`;
+}
+
+function rOvertake(p,body){
+  if(!f1.overtakes.length){
+    body.innerHTML=`<div class="ovp"><div class="ov-info">Live overtakes shown here as they happen on track.</div>${lsH('Awaiting overtakes')}</div>`;
+    return;
+  }
+  const rows=f1.overtakes.slice(0,30).map(o=>{
+    const dOv=gD(o.overtaking_driver_number),dPa=gD(o.overtaken_driver_number);
+    const ovK=dOv?dOv.name_acronym:'#'+o.overtaking_driver_number;
+    const paK=dPa?dPa.name_acronym:'#'+o.overtaken_driver_number;
+    const ovC=dOv?tc(dOv.team_name):TC.default;
+    const paC=dPa?tc(dPa.team_name):TC.default;
+    const time=o.date?new Date(o.date).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';
+    const lap=o.lap_number?'L'+o.lap_number:'';
+    const pos=o.position?'P'+o.position:'';
+    return`<div class="ov-row">
+      <div class="ov-drv" style="color:${ovC}">${ovK}</div>
+      <svg style="width:14px;height:10px;flex-shrink:0" viewBox="0 0 14 10" fill="none"><path d="M1 5h11m0 0L8 1m4 4L8 9" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ov-drv" style="color:${paC}">${paK}</div>
+      <div style="flex:1;font-family:var(--font-mono);font-size:8px;color:var(--muted2);text-align:right">${lap} ${pos}</div>
+      <div style="font-family:var(--font-mono);font-size:8px;color:var(--muted)">${time}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML=`<div class="ovp"><div class="ov-info" style="color:var(--green);border-color:rgba(0,230,118,.2)">${f1.overtakes.length} overtakes this session</div>${rows}</div>`;
+}
+
+function rWeather(p,body){
+  const w=f1.weather;
+  if(!w){
+    if(f1.session&&f1.session.date_end&&new Date(f1.session.date_end).getTime()<Date.now()){
+      body.innerHTML=`<div class="ls"><div class="lst" style="opacity:.6">Weather data unavailable<br>for this session</div></div>`;
+    } else {
+      body.innerHTML=lsH('Awaiting weather data');
+    }
+    return;
+  }
+  const rain=w.rainfall>0,icon=rain?'🌧️':w.track_temperature>42?'☀️':w.track_temperature>30?'⛅':'🌤️';
+  body.innerHTML=`<div class="wp"><div class="w-main"><div class="w-icon">${icon}</div><div><div class="w-temp">${Math.round(w.air_temperature||0)}°C</div><div class="w-sub">Air Temperature</div></div></div><div class="w-grid"><div class="w-stat"><div class="w-sl">Track Temp</div><div class="w-sv hot">${Math.round(w.track_temperature||0)}°C</div></div><div class="w-stat"><div class="w-sl">Humidity</div><div class="w-sv">${Math.round(w.humidity||0)}%</div></div><div class="w-stat"><div class="w-sl">Wind Speed</div><div class="w-sv">${Math.round(w.wind_speed||0)} m/s</div></div><div class="w-stat"><div class="w-sl">Wind Dir</div><div class="w-sv">${Math.round(w.wind_direction||0)}°</div></div><div class="w-stat" style="grid-column:span 2"><div class="w-sl">Conditions</div><div class="w-sv ${rain?'rain':''}">${rain?'⚠ RAIN DETECTED':'DRY TRACK'}</div></div></div></div>`;
+}
+
+function rGaps(p,body){
+  if(!f1.positions.length){body.innerHTML=lsH('Awaiting gap data');return;}
+  let maxGap=10;
+  f1.positions.forEach(pos=>{
+    const iv=gI(pos.driver_number);
+    if(iv && typeof iv.gap_to_leader==='number' && iv.gap_to_leader>maxGap)maxGap=iv.gap_to_leader;
+  });
+  if(maxGap<10)maxGap=10;
+  const rows=f1.positions.map((pos,i)=>{
+    const d=gD(pos.driver_number),iv=gI(pos.driver_number);
+    const n3=d?d.name_acronym:'#'+pos.driver_number,col=d?tc(d.team_name):TC.default;
+    let gapLabel='LEAD',pct=1.5;
+    if(i===0){gapLabel='LEAD';pct=1.5;}
+    else if(iv&&typeof iv.gap_to_leader==='number'){gapLabel='+'+iv.gap_to_leader.toFixed(3)+'s';pct=Math.max(1.5,Math.min(100,(iv.gap_to_leader/maxGap)*100));}
+    else if(iv&&typeof iv.gap_to_leader==='string'){gapLabel=iv.gap_to_leader;pct=100;}
+    else{gapLabel='--';pct=1.5;}
+    return`<div class="gr"><div class="g-pos">${pos.position}</div><div class="g-drv" style="color:${col}">${n3}</div><div class="g-bw"><div class="g-b" style="width:${pct}%;background:${col};opacity:.85"></div></div><div class="g-val">${gapLabel}</div></div>`;
+  }).join('');
+  body.innerHTML=`<div class="gp">${rows}</div>`;
+}
+
+function rRadio(p,body){
+  if(!f1.radio.length){body.innerHTML=lsH('Awaiting radio traffic');return;}
+  const msgs=f1.radio.slice(0,20).map((r,i)=>{
+    const d=gD(r.driver_number),n3=d?d.name_acronym:'#'+r.driver_number;
+    const tcol=d?tc(d.team_name):TC.default;
+    const time=r.date?new Date(r.date).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'';
+    const audioId=`audio-${p.id}-${i}`;
+    const ab=r.recording_url
+      ?`<div class="rm-player"><button class="rm-play" id="btn-${audioId}" onclick="toggleAudio('${audioId}','${r.recording_url}',event)"><svg viewBox="0 0 12 12" fill="currentColor" class="ic-play"><path d="M3 2v8l7-4z"/></svg><svg viewBox="0 0 12 12" fill="currentColor" class="ic-pause" style="display:none"><rect x="3" y="2" width="2.5" height="8"/><rect x="6.5" y="2" width="2.5" height="8"/></svg></button><div class="rm-progress" id="prog-${audioId}"><div class="rm-progress-fill" id="fill-${audioId}"></div></div><span class="rm-dur" id="dur-${audioId}">0:00</span></div>`
+      :`<div style="font-size:9px;color:var(--muted);font-style:italic">No audio yet</div>`;
+    return`<div class="rm${i===0?' new':''}"><div class="rm-meta"><div class="rm-drv" style="color:${tcol}">${n3}</div><div class="rm-t">${time}</div></div>${ab}</div>`;
+  }).join('');
+  body.innerHTML=`<div class="rp">${msgs}</div>`;
+}
+
+// Single shared audio element so only one plays at a time
+let currentAudio=null,currentAudioId=null;
+function toggleAudio(audioId,url,e){
+  e.stopPropagation();
+  // If clicking the currently playing one, pause it
+  if(currentAudioId===audioId&&currentAudio&&!currentAudio.paused){
+    currentAudio.pause();
+    setPlayState(audioId,false);
+    return;
+  }
+  // Stop any other playing
+  if(currentAudio){
+    currentAudio.pause();
+    if(currentAudioId)setPlayState(currentAudioId,false);
+  }
+  // If resuming the same one
+  if(currentAudioId===audioId&&currentAudio){
+    currentAudio.play();
+    setPlayState(audioId,true);
+    return;
+  }
+  // New audio
+  currentAudio=new Audio(url);
+  currentAudioId=audioId;
+  currentAudio.addEventListener('loadedmetadata',()=>{
+    const dur=document.getElementById('dur-'+audioId);
+    if(dur)dur.textContent=fmtDur(currentAudio.duration);
+  });
+  currentAudio.addEventListener('timeupdate',()=>{
+    const fill=document.getElementById('fill-'+audioId);
+    const dur=document.getElementById('dur-'+audioId);
+    if(fill&&currentAudio.duration)fill.style.width=(currentAudio.currentTime/currentAudio.duration*100)+'%';
+    if(dur&&currentAudio.duration)dur.textContent=fmtDur(currentAudio.currentTime)+' / '+fmtDur(currentAudio.duration);
+  });
+  currentAudio.addEventListener('ended',()=>{
+    setPlayState(audioId,false);
+    const fill=document.getElementById('fill-'+audioId);
+    if(fill)fill.style.width='0%';
+  });
+  currentAudio.addEventListener('error',()=>{
+    setPlayState(audioId,false);
+    const dur=document.getElementById('dur-'+audioId);
+    if(dur){dur.textContent='Failed';dur.style.color='var(--red)';}
+  });
+  currentAudio.play().then(()=>setPlayState(audioId,true)).catch(()=>{
+    setPlayState(audioId,false);
+  });
+}
+function setPlayState(audioId,playing){
+  const btn=document.getElementById('btn-'+audioId);
+  if(!btn)return;
+  const ply=btn.querySelector('.ic-play'),pau=btn.querySelector('.ic-pause');
+  if(ply)ply.style.display=playing?'none':'';
+  if(pau)pau.style.display=playing?'':'none';
+  btn.classList.toggle('playing',playing);
+}
+function fmtDur(s){if(!s||!isFinite(s))return'0:00';const m=Math.floor(s/60),sec=Math.floor(s%60);return m+':'+String(sec).padStart(2,'0');}
+
+function rTrack(p,body){
+  body.innerHTML=`<div class="tmp"><canvas id="tc-${p.id}"></canvas></div>`;
+  drawTrack(p.id);
+  // Redraw once layout has settled (mobile CSS heights apply after paint)
+  requestAnimationFrame(()=>drawTrack(p.id));
+  setTimeout(()=>drawTrack(p.id),120);
+}
+function drawTrack(pid){
+  const canvas=document.getElementById('tc-'+pid);if(!canvas)return;
+  const p=panels.find(x=>x.id===pid);if(!p)return;
+  let W,H;
+  if(isMobile()){
+    // Measure the actual rendered body container instead of stored panel dims
+    const body=document.getElementById('b-'+pid);
+    if(body){W=body.clientWidth-4;H=body.clientHeight-4;}
+    else{W=p.w-16;H=p.h-36;}
+  } else {
+    W=p.w-16;H=p.h-36;
+  }
+  if(W<20||H<20)return;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(W*dpr);
+  canvas.height=Math.round(H*dpr);
+  canvas.style.width=W+'px';
+  canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality='high';
+  ctx.clearRect(0,0,W,H);
+
+  const T=f1.trackTransform;
+  const havePoints=f1.trackPoints.length>50&&T;
+  const pad=14;
+
+  // Helper: project [x,y] from circuit-space to canvas using live transform
+  let projectLive=null;
+  let liveScale=1;
+  if(havePoints){
+    const w=T.maxX-T.minX,h=T.maxY-T.minY;
+    liveScale=Math.min((W-pad*2)/w,(H-pad*2)/h);
+    const cos=Math.cos(-T.angle),sin=Math.sin(-T.angle);
+    const ox=(W-w*liveScale)/2,oy=(H-h*liveScale)/2;
+    projectLive=(x,y)=>{
+      const dx=x-T.cx,dy=y-T.cy;
+      const rx=dx*cos-dy*sin,ry=dx*sin+dy*cos;
+      return [(rx-T.minX)*liveScale+ox,(ry-T.minY)*liveScale+oy];
+    };
+  }
+
+  // ── Draw track shape ───────────────────────────────────────────────────
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  const trackW=Math.max(5,Math.min(W,H)*0.038);
+
+  if(havePoints){
+    // Build a smooth outline from the accumulated track points by ordering them
+    // along the racing line using a nearest-neighbour traversal.
+    const ordered=orderTrackPoints(f1.trackPoints);
+    const projected=ordered.map(([x,y])=>projectLive(x,y));
+
+    // Outer asphalt edge
+    ctx.strokeStyle='#1a1a22';
+    ctx.lineWidth=trackW+3;
+    ctx.beginPath();
+    projected.forEach(([x,y],i)=>{i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();
+    ctx.stroke();
+
+    // Track surface
+    ctx.strokeStyle='#2c2c36';
+    ctx.lineWidth=trackW;
+    ctx.beginPath();
+    projected.forEach(([x,y],i)=>{i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();
+    ctx.stroke();
+
+    // Centre line (dashed)
+    ctx.strokeStyle='rgba(255,255,255,.07)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([3,5]);
+    ctx.beginPath();
+    projected.forEach(([x,y],i)=>{i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+    ctx.closePath();
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Start/finish line at the leader's position when stationary on grid would be tricky
+    // Instead place at first ordered point
+    if(projected.length>1){
+      const [sfx,sfy]=projected[0],[nxs,nys]=projected[1];
+      const ang=Math.atan2(nys-sfy,nxs-sfx)+Math.PI/2;
+      const sl=trackW*0.75;
+      ctx.strokeStyle='#E8002D';
+      ctx.lineWidth=2.5;
+      ctx.beginPath();
+      ctx.moveTo(sfx+Math.cos(ang)*sl,sfy+Math.sin(ang)*sl);
+      ctx.lineTo(sfx-Math.cos(ang)*sl,sfy-Math.sin(ang)*sl);
+      ctx.stroke();
+    }
+
+    // Place cars using the same projection — guaranteed to line up
+    const sorted=[...f1.positions].reverse();
+    sorted.forEach(pos=>{
+      const loc=f1.location[pos.driver_number];
+      if(!loc||typeof loc.x!=='number')return;
+      const d=gD(pos.driver_number);
+      const col=d?tc(d.team_name):TC.default;
+      const [x,y]=projectLive(loc.x,loc.y);
+      drawCarDot(ctx,x,y,col,d?d.name_acronym:'#'+pos.driver_number,W,H,pos.position===1);
+    });
+
+    // Status label
+    ctx.fillStyle='rgba(0,230,118,.55)';
+    ctx.font=`700 9px Barlow Condensed`;
+    ctx.textAlign='left';
+    ctx.textBaseline='bottom';
+    ctx.fillText(`● LIVE • ${f1.trackPoints.length} pts`,8,H-6);
+  } else if(f1.trackOutline&&f1.trackOutline.length>2){
+    // Fallback: GeoJSON outline (lon/lat) while we accumulate live points
+    const coords=f1.trackOutline;
+    let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+    coords.forEach(([x,y])=>{minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);});
+    const cw=maxX-minX,ch=maxY-minY;
+    const avgLat=(minY+maxY)/2;
+    const lonScale=Math.cos(avgLat*Math.PI/180);
+    const effW=cw*lonScale;
+    const scale=Math.min((W-pad*2)/effW,(H-pad*2)/ch);
+    const ox=(W-effW*scale)/2-minX*lonScale*scale;
+    const oy=(H-ch*scale)/2+maxY*scale;
+    const tx=lon=>lon*lonScale*scale+ox;
+    const ty=lat=>oy-lat*scale;
+
+    ctx.strokeStyle='#1a1a22';
+    ctx.lineWidth=trackW+3;
+    ctx.beginPath();
+    coords.forEach(([x,y],i)=>{i===0?ctx.moveTo(tx(x),ty(y)):ctx.lineTo(tx(x),ty(y));});
+    ctx.stroke();
+
+    ctx.strokeStyle='#2c2c36';
+    ctx.lineWidth=trackW;
+    ctx.beginPath();
+    coords.forEach(([x,y],i)=>{i===0?ctx.moveTo(tx(x),ty(y)):ctx.lineTo(tx(x),ty(y));});
+    ctx.stroke();
+
+    // Distribute cars along the outline by grid position
+    if(f1.positions.length){
+      const total=Math.min(f1.positions.length,20);
+      f1.positions.slice(0,total).forEach((pos,i)=>{
+        const d=gD(pos.driver_number);
+        const col=d?tc(d.team_name):TC.default;
+        const idx=Math.floor((i/total)*(coords.length-1));
+        const [cx,cy]=coords[idx];
+        drawCarDot(ctx,tx(cx),ty(cy),col,d?d.name_acronym:'#'+pos.driver_number,W,H,pos.position===1);
+      });
+    }
+    ctx.fillStyle='rgba(106,106,122,.55)';
+    ctx.font=`700 9px Barlow Condensed`;
+    ctx.textAlign='left';
+    ctx.textBaseline='bottom';
+    ctx.fillText('SHAPE PREVIEW',8,H-6);
+  } else {
+    // No data at all
+    ctx.fillStyle='rgba(255,255,255,.08)';
+    ctx.font=`${Math.max(10,Math.min(W,H)*.045)}px Barlow Condensed`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(f1.circuitKey?'BUILDING TRACK MAP…':'NO SESSION',W/2,H/2-8);
+    if(f1.circuitKey){
+      ctx.fillStyle='rgba(255,255,255,.3)';
+      ctx.font=`700 11px Barlow Condensed`;
+      ctx.fillText(f1.circuitKey.toUpperCase(),W/2,H/2+12);
+      ctx.fillStyle='rgba(255,255,255,.15)';
+      ctx.font=`9px Barlow Condensed`;
+      ctx.fillText('Cars must be on track',W/2,H/2+30);
+    }
+  }
+
+  // Circuit name (always show)
+  if(f1.circuitKey){
+    ctx.fillStyle='rgba(255,255,255,.45)';
+    ctx.font=`700 10px Barlow Condensed`;
+    ctx.textAlign='right';
+    ctx.textBaseline='bottom';
+    ctx.fillText(f1.circuitKey.toUpperCase(),W-8,H-6);
+  }
+}
+
+// Order a cloud of track points along the racing line using nearest-neighbour
+// traversal. Cached because it's expensive — only re-runs when point count grows.
+function orderTrackPoints(points){
+  if(_orderCache.count===points.length&&_orderCache.result)return _orderCache.result;
+  if(points.length<3){_orderCache={count:points.length,result:points};return points;}
+  // Sample down for performance — 600 points is plenty for a smooth shape
+  const stride=Math.max(1,Math.floor(points.length/600));
+  const sampled=[];
+  for(let i=0;i<points.length;i+=stride)sampled.push(points[i]);
+  // Nearest-neighbour walk starting from leftmost point
+  let startIdx=0;
+  let minX=Infinity;
+  sampled.forEach((p,i)=>{if(p[0]<minX){minX=p[0];startIdx=i;}});
+  const used=new Array(sampled.length).fill(false);
+  const ordered=[];
+  let curr=startIdx;
+  for(let step=0;step<sampled.length;step++){
+    used[curr]=true;
+    ordered.push(sampled[curr]);
+    let bestDist=Infinity,bestIdx=-1;
+    const [cx,cy]=sampled[curr];
+    for(let j=0;j<sampled.length;j++){
+      if(used[j])continue;
+      const [px,py]=sampled[j];
+      const d=(px-cx)*(px-cx)+(py-cy)*(py-cy);
+      if(d<bestDist){bestDist=d;bestIdx=j;}
+    }
+    if(bestIdx<0)break;
+    curr=bestIdx;
+  }
+  _orderCache={count:points.length,result:ordered};
+  return ordered;
+}
+
+
+function drawCarDot(ctx,x,y,col,label,W,H,isLeader){
+  const sz=Math.min(W,H);
+  const r=sz*.018;
+  // outer glow
+  ctx.beginPath();
+  ctx.arc(x,y,r*1.8,0,Math.PI*2);
+  ctx.fillStyle=col+'33';
+  ctx.fill();
+  // dot
+  ctx.beginPath();
+  ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=col;
+  ctx.fill();
+  // border
+  ctx.strokeStyle=isLeader?'#fff':'rgba(0,0,0,.7)';
+  ctx.lineWidth=isLeader?1.2:1;
+  ctx.stroke();
+  // label
+  if(sz>200){
+    ctx.fillStyle='rgba(255,255,255,.95)';
+    ctx.font=`700 ${sz*.022}px Barlow Condensed`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText(label,x,y-r*2.4);
+  }
+}
+
+function rLaps(p,body){
+  if(!f1.allLaps.length){body.innerHTML=lsH('Awaiting lap times');return;}
+  // For each driver, find their best lap time
+  const bestPerDriver={};
+  let overallFastest=Infinity,overallFastestDrv=null;
+  f1.allLaps.forEach(l=>{
+    if(!l.lap_duration||l.lap_duration<=0)return;
+    if(!bestPerDriver[l.driver_number]||l.lap_duration<bestPerDriver[l.driver_number].lap_duration){
+      bestPerDriver[l.driver_number]=l;
+    }
+    if(l.lap_duration<overallFastest){overallFastest=l.lap_duration;overallFastestDrv=l.driver_number;}
+  });
+  const rows=f1.positions.map(pos=>{
+    const d=gD(pos.driver_number);
+    const best=bestPerDriver[pos.driver_number];
+    const last=gL(pos.driver_number);
+    const n3=d?d.name_acronym:'#'+pos.driver_number,col=d?tc(d.team_name):TC.default;
+    const lastT=last?.lap_duration?fL(last.lap_duration*1000):'--:--.---';
+    const isFast=pos.driver_number===overallFastestDrv;
+    const cls=isFast?'lp-time fastest':last?.lap_duration===best?.lap_duration?'lp-time pb':'lp-time';
+    return`<div class="lp-row${isFast?' fastest':''}"><div class="pos">${pos.position}</div><div class="dtag" style="color:${col}">${n3}</div><div class="dname">${d?d.last_name:''}</div><div class="${cls}">${lastT}</div><div class="lp-num">L${last?.lap_number||'--'}</div></div>`;
+  }).join('');
+  const fastestStr=overallFastestDrv&&overallFastest!==Infinity?fL(overallFastest*1000):'--:--.---';
+  const fastDrv=gD(overallFastestDrv);
+  return body.innerHTML=`<div class="lp"><div class="lp-head"><div>P</div><div>DRV</div><div>NAME</div><div style="text-align:right">LAST LAP</div><div style="text-align:right">LAP#</div></div>${rows}<div style="padding:6px 8px;background:rgba(213,0,249,.06);border-top:1px solid var(--border2);font-size:9px;display:flex;justify-content:space-between;align-items:center"><span style="color:var(--muted2);letter-spacing:.1em">FASTEST LAP</span><span style="font-family:var(--font-mono);color:#e040fb">${fastDrv?fastDrv.name_acronym:''} ${fastestStr}</span></div></div>`;
+}
+
+// DRAG / RESIZE
+function setupDrag(el,panel){
+  const hdr=el.querySelector('.ph');let drag=false,ox,oy,sx,sy;
+  const ws=document.getElementById('workspace');
+  const mv=e=>{if(!drag)return;const cx=e.touches?e.touches[0].clientX:e.clientX,cy2=e.touches?e.touches[0].clientY:e.clientY;panel.x=Math.max(0,Math.min(ws.clientWidth-panel.w,ox+cx-sx));panel.y=Math.max(0,Math.min(ws.clientHeight-panel.h,oy+cy2-sy));el.style.left=panel.x+'px';el.style.top=panel.y+'px';};
+  const up=()=>{if(!drag)return;drag=false;el.classList.remove('dragging');if(panel.type==='track')drawTrack(panel.id);saveLayout();document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);};
+  const dn=e=>{if(e.target.closest('.pa'))return;drag=true;el.classList.add('dragging');focusP(el);ox=panel.x;oy=panel.y;sx=e.touches?e.touches[0].clientX:e.clientX;sy=e.touches?e.touches[0].clientY:e.clientY;document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);document.addEventListener('touchmove',mv,{passive:true});document.addEventListener('touchend',up);};
+  hdr.addEventListener('mousedown',dn);hdr.addEventListener('touchstart',dn,{passive:true});
+}
+function setupResize(el,panel){
+  const rh=el.querySelector('.rh');let res=false,sx,sy,sw,sh;
+  const mv=e=>{if(!res)return;const cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;panel.w=Math.max(180,sw+cx-sx);panel.h=Math.max(120,sh+cy-sy);el.style.width=panel.w+'px';el.style.height=panel.h+'px';if(panel.type==='track')drawTrack(panel.id);};
+  const up=()=>{if(!res)return;res=false;saveLayout();document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);};
+  const dn=e=>{e.stopPropagation();res=true;focusP(el);sx=e.touches?e.touches[0].clientX:e.clientX;sy=e.touches?e.touches[0].clientY:e.clientY;sw=panel.w;sh=panel.h;document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);document.addEventListener('touchmove',mv,{passive:true});document.addEventListener('touchend',up);};
+  rh.addEventListener('mousedown',dn);rh.addEventListener('touchstart',dn,{passive:true});
+}
+
+// PRESETS
+function doPreset(t){
+  clearAll();
+  const ws=document.getElementById('workspace'),W=ws.clientWidth,H=ws.clientHeight,p=5;
+  if(t==='default'){
+    // Pit wall: timing tower + tyres column on left, gap chart top right, weather + radio + track map stacked right
+    const lw=W*.42-p*1.5,rw=W*.30-p,r2w=W*.28-p*1.5;
+    const fullH=H-p*2;
+    addP('timing',p,p,lw,fullH);
+    addP('gaps',p*2+lw,p,rw,fullH*.55);
+    addP('tyres',p*2+lw,p*2+fullH*.55,rw,fullH*.45);
+    addP('weather',p*3+lw+rw,p,r2w,fullH*.35);
+    addP('radio',p*3+lw+rw,p*2+fullH*.35,r2w,fullH*.35);
+    addP('track',p*3+lw+rw,p*3+fullH*.7,r2w,fullH*.3);
+  } else if(t==='timing'){
+    const mw=W*.55-p*1.5,sw=W*.45-p*1.5,sh=(H-p*3)/2;
+    addP('timing',p,p,mw,H-p*2);
+    addP('gaps',p*2+mw,p,sw,sh);
+    addP('sectors',p*2+mw,p*2+sh,sw,sh);
+  } else if(t==='quad'){
+    const w=(W-p*3)/2,h=(H-p*3)/2;
+    addP('timing',p,p,w,h);
+    addP('gaps',p*2+w,p,w,h);
+    addP('tyres',p,p*2+h,w,h);
+    addP('overtake',p*2+w,p*2+h,w,h);
+  } else if(t==='strat'){
+    const lw=W*.55-p*1.5,rw=W*.45-p*1.5,th=H*.55-p*1.5,bh=H*.45-p*1.5;
+    addP('tyres',p,p,lw,th);
+    addP('weather',p*2+lw,p,rw,th);
+    addP('sectors',p,p*2+th,lw,bh);
+    addP('overtake',p*2+lw,p*2+th,rw,bh);
+  }
+}
+
+// MENU
+let mOpen=false;
+document.getElementById('btn-add').addEventListener('click',e=>{
+  const m=document.getElementById('add-menu'),r=e.currentTarget.getBoundingClientRect();
+  m.style.left=r.left+'px';m.style.top=(r.bottom+5)+'px';
+  mOpen=!mOpen;m.classList.toggle('vis',mOpen);
+});
+function closeMenu(){mOpen=false;document.getElementById('add-menu').classList.remove('vis');}
+document.addEventListener('click',e=>{if(!e.target.closest('#add-menu')&&!e.target.closest('#btn-add'))closeMenu();});
+
+// ── LIVE KEY MODAL ───────────────────────────────────────────────────────────
+function openKeyModal(){
+  document.getElementById('key-modal').classList.add('vis');
+  const input=document.getElementById('key-input');
+  if(input)input.value=liveToken||'';
+  updateKeyStatus();
+}
+function closeKeyModal(){document.getElementById('key-modal').classList.remove('vis');}
+function updateKeyStatus(){
+  const s=document.getElementById('key-status');
+  if(!s)return;
+  if(liveToken){
+    s.className='key-status ok';
+    s.textContent='✓ Token saved — live data will be used when available';
+  } else {
+    s.className='key-status info';
+    s.textContent='No token set — works for finished sessions only';
+  }
+}
+function saveKey(){
+  const input=document.getElementById('key-input');
+  const val=input?input.value.trim():'';
+  if(!val){clearKey();return;}
+  liveToken=val;
+  try{localStorage.setItem('pitwall_token',val);}catch(e){}
+  updateKeyStatus();
+  updateKeyButton();
+  lastWas401=false;
+  loadData(); // immediately retry with the new token
+}
+function clearKey(){
+  liveToken=null;
+  try{localStorage.removeItem('pitwall_token');}catch(e){}
+  const input=document.getElementById('key-input');
+  if(input)input.value='';
+  updateKeyStatus();
+  updateKeyButton();
+}
+function updateKeyButton(){
+  const btn=document.getElementById('btn-key');
+  if(!btn)return;
+  if(liveToken){btn.style.borderColor='rgba(0,230,118,.5)';btn.style.color='var(--green)';}
+  else{btn.style.borderColor='';btn.style.color='';}
+}
+function toggleFetchToken(){
+  const area=document.getElementById('fetch-token-area');
+  if(area)area.style.display=area.style.display==='none'?'block':'none';
+}
+async function fetchToken(){
+  const user=document.getElementById('key-user').value.trim();
+  const pass=document.getElementById('key-pass').value;
+  const s=document.getElementById('key-status');
+  if(!user||!pass){s.className='key-status err';s.textContent='Enter both username and password';return;}
+  s.className='key-status info';s.textContent='Requesting token…';
+  try{
+    const body=new URLSearchParams();
+    body.append('username',user);
+    body.append('password',pass);
+    const r=await fetch('https://api.openf1.org/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+    if(!r.ok){s.className='key-status err';s.textContent='Login failed ('+r.status+') — check your credentials & subscription';return;}
+    const data=await r.json();
+    if(data&&data.access_token){
+      liveToken=data.access_token;
+      try{localStorage.setItem('pitwall_token',liveToken);}catch(e){}
+      document.getElementById('key-input').value=liveToken;
+      // Clear the login fields immediately — never stored
+      document.getElementById('key-user').value='';
+      document.getElementById('key-pass').value='';
+      s.className='key-status ok';s.textContent='✓ Token fetched & saved — valid ~1 hour';
+      updateKeyButton();
+      lastWas401=false;
+      loadData();
+    } else {
+      s.className='key-status err';s.textContent='No token in response';
+    }
+  }catch(e){
+    s.className='key-status err';s.textContent='Network error — could not reach OpenF1';
+  }
+}
+document.getElementById('key-modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('key-modal'))closeKeyModal();
+});
+
+// HELPERS
+function hideEws(){document.getElementById('ews').classList.add('hid');}
+function showEws(){document.getElementById('ews').classList.remove('hid');}
+
+// ── WEEKEND OVERVIEW MODAL ───────────────────────────────────────────────────
+const CIRCUIT_INFO={
+  'Sakhir':{length:'5.412 km',corners:15,drs:3,record:'1:31.447 — de la Rosa (2005)',firstGP:2004},
+  'Jeddah':{length:'6.174 km',corners:27,drs:3,record:'1:30.734 — Hamilton (2021)',firstGP:2021},
+  'Melbourne':{length:'5.278 km',corners:14,drs:4,record:'1:19.813 — Leclerc (2024)',firstGP:1996},
+  'Suzuka':{length:'5.807 km',corners:18,drs:1,record:'1:30.983 — Hamilton (2019)',firstGP:1987},
+  'Shanghai':{length:'5.451 km',corners:16,drs:2,record:'1:32.238 — Schumacher (2004)',firstGP:2004},
+  'Baku':{length:'6.003 km',corners:20,drs:2,record:'1:43.009 — Leclerc (2019)',firstGP:2016},
+  'Miami':{length:'5.412 km',corners:19,drs:3,record:'1:29.708 — Verstappen (2023)',firstGP:2022},
+  'Imola':{length:'4.909 km',corners:19,drs:1,record:'1:15.484 — Hamilton (2020)',firstGP:1980},
+  'Monaco':{length:'3.337 km',corners:19,drs:1,record:'1:12.909 — Hamilton (2021)',firstGP:1950},
+  'Catalunya':{length:'4.657 km',corners:14,drs:2,record:'1:16.330 — Verstappen (2023)',firstGP:1991},
+  'Montréal':{length:'4.361 km',corners:14,drs:3,record:'1:13.078 — Bottas (2019)',firstGP:1978},
+  'Montreal':{length:'4.361 km',corners:14,drs:3,record:'1:13.078 — Bottas (2019)',firstGP:1978},
+  'Gilles Villeneuve':{length:'4.361 km',corners:14,drs:3,record:'1:13.078 — Bottas (2019)',firstGP:1978},
+  'Spielberg':{length:'4.318 km',corners:10,drs:3,record:'1:05.619 — Sainz (2020)',firstGP:1970},
+  'Silverstone':{length:'5.891 km',corners:18,drs:2,record:'1:27.097 — Verstappen (2020)',firstGP:1950},
+  'Hungaroring':{length:'4.381 km',corners:14,drs:1,record:'1:16.627 — Hamilton (2020)',firstGP:1986},
+  'Spa-Francorchamps':{length:'7.004 km',corners:19,drs:2,record:'1:46.286 — Bottas (2018)',firstGP:1950},
+  'Zandvoort':{length:'4.259 km',corners:14,drs:2,record:'1:11.097 — Hamilton (2021)',firstGP:1952},
+  'Monza':{length:'5.793 km',corners:11,drs:2,record:'1:21.046 — Barrichello (2004)',firstGP:1950},
+  'Singapore':{length:'4.940 km',corners:19,drs:3,record:'1:35.867 — Norris (2023)',firstGP:2008},
+  'Lusail':{length:'5.419 km',corners:16,drs:1,record:'1:24.319 — Norris (2024)',firstGP:2021},
+  'Austin':{length:'5.513 km',corners:20,drs:2,record:'1:36.169 — Leclerc (2019)',firstGP:2012},
+  'Mexico City':{length:'4.304 km',corners:17,drs:3,record:'1:17.774 — Bottas (2021)',firstGP:1963},
+  'Interlagos':{length:'4.309 km',corners:15,drs:2,record:'1:10.540 — Bottas (2018)',firstGP:1973},
+  'Las Vegas':{length:'6.201 km',corners:17,drs:2,record:'1:34.876 — Norris (2024)',firstGP:2023},
+  'Yas Marina':{length:'5.281 km',corners:16,drs:2,record:'1:26.103 — Verstappen (2021)',firstGP:2009},
+};
+function getCircuitInfo(name){
+  if(!name)return null;
+  for(const k of Object.keys(CIRCUIT_INFO)){
+    if(name.toLowerCase().includes(k.toLowerCase())||k.toLowerCase().includes(name.toLowerCase()))return CIRCUIT_INFO[k];
+  }
+  return null;
+}
+let weekendOpen=false,weekendTimer=null;
+async function openWeekendModal(){
+  if(!f1.session)return;
+  weekendOpen=true;
+  document.getElementById('weekend-modal').classList.add('vis');
+  await renderWeekendModal();
+  if(weekendTimer)clearInterval(weekendTimer);
+  weekendTimer=setInterval(updateWeekendCountdown,1000);
+}
+function closeWeekendModal(){
+  weekendOpen=false;
+  document.getElementById('weekend-modal').classList.remove('vis');
+  if(weekendTimer){clearInterval(weekendTimer);weekendTimer=null;}
+}
+async function renderWeekendModal(){
+  const box=document.getElementById('wm-box-content');
+  box.innerHTML=`<div class="wm-loading"><div class="lsp"></div></div>`;
+  const meetingKey=f1.session.meeting_key;
+  let sessions=[];
+  if(meetingKey){
+    const resp=await fetchF1('sessions?meeting_key='+meetingKey);
+    if(resp&&resp.length)sessions=resp.sort((a,b)=>new Date(a.date_start)-new Date(b.date_start));
+  }
+  const circuit=f1.session.circuit_short_name||'';
+  const country=f1.session.country_name||'';
+  const meetingName=f1.session.meeting_name||(circuit+' Grand Prix');
+  const info=getCircuitInfo(circuit);
+  const now=Date.now();
+  let nextSession=null;
+  for(const s of sessions){if(new Date(s.date_start).getTime()>now){nextSession=s;break;}}
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace('_',' ');
+  const sessionRows=sessions.map(s=>{
+    const start=new Date(s.date_start).getTime(),end=new Date(s.date_end).getTime();
+    let cls='upcoming',status='UPCOMING';
+    if(end<now){cls='done';status='✓ DONE';}
+    else if(start<=now&&end>=now){cls='live';status='● LIVE';}
+    else if(s===nextSession){cls='next';status='NEXT';}
+    const date=new Date(s.date_start);
+    const day=date.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    const time=date.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    return`<div class="wm-sess ${cls}"><div class="wm-sess-dot"></div><div class="wm-sess-name">${s.session_name||''}</div><div class="wm-sess-day">${day}</div><div class="wm-sess-time">${time}<div class="wm-sess-tz">${tz}</div></div><div class="wm-sess-status">${status}</div></div>`;
+  }).join('');
+  let countdownHTML='';
+  if(nextSession){
+    const ms=new Date(nextSession.date_start).getTime()-now;
+    countdownHTML=`<div class="wm-countdown" id="wm-countdown" data-target="${new Date(nextSession.date_start).getTime()}"><div class="wm-countdown-lbl">Next: ${nextSession.session_name}</div><div class="wm-countdown-val">${fmtCountdownDetail(ms)}</div></div>`;
+  }
+  let infoCards='';
+  if(info){
+    infoCards=`<div class="wm-info-card"><div class="wm-info-lbl">Length</div><div class="wm-info-val">${info.length}</div></div><div class="wm-info-card"><div class="wm-info-lbl">Corners</div><div class="wm-info-val">${info.corners}</div></div><div class="wm-info-card"><div class="wm-info-lbl">DRS Zones</div><div class="wm-info-val">${info.drs}</div></div><div class="wm-info-card"><div class="wm-info-lbl">First GP</div><div class="wm-info-val">${info.firstGP}</div></div><div class="wm-info-card" style="grid-column:1/-1"><div class="wm-info-lbl">Lap Record</div><div class="wm-info-val small">${info.record}</div></div>`;
+  }
+  box.innerHTML=`<div class="wm-hero"><button class="wm-close" onclick="closeWeekendModal()"><svg viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>${countdownHTML}<div class="wm-hero-tag">Race Weekend${country?' · '+country:''}</div><div class="wm-hero-title">${(circuit||meetingName).toUpperCase()}</div><div class="wm-hero-sub">${meetingName}</div></div><div class="wm-body">${sessionRows.length?`<div><div class="wm-section-title">Schedule (your local time)</div><div class="wm-schedule">${sessionRows}</div></div>`:''}${infoCards?`<div><div class="wm-section-title">Circuit Info</div><div class="wm-info-grid">${infoCards}</div></div>`:''}${f1.trackOutline&&f1.trackOutline.length?`<div><div class="wm-section-title">Layout</div><canvas class="wm-circuit-canvas" id="wm-circuit-canvas"></canvas></div>`:''}</div>`;
+  if(f1.trackOutline&&f1.trackOutline.length)setTimeout(drawModalCircuit,50);
+}
+function fmtCountdownDetail(ms){
+  if(ms<0)return 'STARTING';
+  const d=Math.floor(ms/86400000),h=Math.floor((ms%86400000)/3600000),m=Math.floor((ms%3600000)/60000),s=Math.floor((ms%60000)/1000);
+  if(d>0)return `${d}D ${String(h).padStart(2,'0')}H ${String(m).padStart(2,'0')}M`;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function updateWeekendCountdown(){
+  const el=document.getElementById('wm-countdown');
+  if(!el||!weekendOpen)return;
+  const ms=parseInt(el.dataset.target)-Date.now();
+  const v=el.querySelector('.wm-countdown-val');
+  if(v)v.textContent=fmtCountdownDetail(ms);
+}
+function drawModalCircuit(){
+  const canvas=document.getElementById('wm-circuit-canvas');
+  if(!canvas)return;
+  const W=canvas.clientWidth||600,H=200,dpr=window.devicePixelRatio||1;
+  canvas.width=W*dpr;canvas.height=H*dpr;canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const coords=f1.trackOutline;
+  let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
+  coords.forEach(([x,y])=>{minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);});
+  const cw=maxX-minX,ch=maxY-minY,pad=20,avgLat=(minY+maxY)/2,lonScale=Math.cos(avgLat*Math.PI/180),effW=cw*lonScale;
+  const scale=Math.min((W-pad*2)/effW,(H-pad*2)/ch),ox=(W-effW*scale)/2-minX*lonScale*scale,oy=(H-ch*scale)/2+maxY*scale;
+  const tx=l=>l*lonScale*scale+ox,ty=l=>oy-l*scale;
+  ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.strokeStyle='#1a1a22';ctx.lineWidth=13;ctx.beginPath();coords.forEach(([x,y],i)=>{i===0?ctx.moveTo(tx(x),ty(y)):ctx.lineTo(tx(x),ty(y));});ctx.stroke();
+  ctx.strokeStyle='#2c2c36';ctx.lineWidth=10;ctx.beginPath();coords.forEach(([x,y],i)=>{i===0?ctx.moveTo(tx(x),ty(y)):ctx.lineTo(tx(x),ty(y));});ctx.stroke();
+  if(coords.length>1){const [sx,sy]=coords[0],[nx,ny]=coords[1];const sfx=tx(sx),sfy=ty(sy),ang=Math.atan2(ty(ny)-sfy,tx(nx)-sfx)+Math.PI/2;ctx.strokeStyle='#E8002D';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(sfx+Math.cos(ang)*8,sfy+Math.sin(ang)*8);ctx.lineTo(sfx-Math.cos(ang)*8,sfy-Math.sin(ang)*8);ctx.stroke();}
+}
+// Wire up the pill click
+(function(){
+  const pill=document.getElementById('live-pill');
+  if(pill){pill.style.cursor='pointer';pill.addEventListener('click',()=>{if(f1.session)openWeekendModal();});}
+  const wm=document.getElementById('weekend-modal');
+  if(wm)wm.addEventListener('click',e=>{if(e.target===wm)closeWeekendModal();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&weekendOpen)closeWeekendModal();});
+})();
+
+// INIT
+updateKeyButton();
+loadData();
+setInterval(loadData,8000);
+setInterval(()=>{if(panels.some(p=>p.type==='track'))loadLocation();},2500);
+setTimeout(()=>{if(!panels.length){if(!loadLayout())doPreset('default');}},150);
+
+// Handle window resize / device rotation
+let wasMobile=isMobile();
+let resizeDebounce=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeDebounce);
+  resizeDebounce=setTimeout(()=>{
+    const nowMobile=isMobile();
+    if(nowMobile!==wasMobile){
+      // Crossed the breakpoint — rebuild panels so positioning mode switches
+      wasMobile=nowMobile;
+      const saved=panels.map(p=>({type:p.type,x:p.x,y:p.y,w:p.w,h:p.h}));
+      clearAll();
+      if(saved.length){saved.forEach(p=>addP(p.type,p.x,p.y,p.w,p.h));}
+      else doPreset('default');
+    } else {
+      // Just redraw track maps to fit new size
+      panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));
+    }
+  },250);
+});
+window.addEventListener('orientationchange',()=>{
+  setTimeout(()=>{panels.filter(p=>p.type==='track').forEach(p=>drawTrack(p.id));},400);
+});
+</script>
+</body>
+</html>
